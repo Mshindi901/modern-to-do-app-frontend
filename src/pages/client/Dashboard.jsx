@@ -9,10 +9,10 @@ import { getCurrentUser } from '../../api/userApi.js';
 import { getApiErrorMessage } from '../../api/axios.js';
 import Button from '../../components/ui/Button.jsx';
 
-const priorityColors = {
-  low: 'bg-emerald-100 text-emerald-700',
-  medium: 'bg-amber-100 text-amber-700',
-  high: 'bg-rose-100 text-rose-700',
+const priorityMeta = {
+  low: { label: 'No rush', className: 'bg-emerald-100 text-emerald-700' },
+  medium: { label: 'Important', className: 'bg-amber-100 text-amber-700' },
+  high: { label: 'Urgent', className: 'bg-rose-100 text-rose-700' },
 };
 
 function Dashboard() {
@@ -315,7 +315,9 @@ function Dashboard() {
                     </div>
                     <div className="mt-1 flex flex-wrap items-center gap-3 text-xs text-slate-500">
                       <span>{task.due_date ? new Date(task.due_date).toLocaleDateString() : 'No due date'}</span>
-                      <span className={`rounded-full px-2 py-0.5 font-medium ${priorityColors[task.priority] || 'bg-slate-100 text-slate-600'}`}>{task.priority}</span>
+                      <span className={`rounded-full px-2 py-0.5 font-medium ${priorityMeta[task.priority]?.className || 'bg-slate-100 text-slate-600'}`}>
+                        {priorityMeta[task.priority]?.label || task.priority}
+                      </span>
                     </div>
                   </div>
                   <button onClick={(e) => { e.stopPropagation(); handleStarToggle(task.id, !task.is_starred); }} className="rounded-full p-2 text-slate-400 hover:bg-slate-100 hover:text-yellow-500">
@@ -344,7 +346,9 @@ function Dashboard() {
                 </div>
                 <div className="flex items-center justify-between rounded-xl bg-slate-50 p-3">
                   <span>Priority</span>
-                  <span className={`rounded-full px-2 py-1 text-xs font-medium ${priorityColors[selectedTask.priority] || 'bg-slate-100 text-slate-600'}`}>{selectedTask.priority}</span>
+                  <span className={`rounded-full px-2 py-1 text-xs font-medium ${priorityMeta[selectedTask.priority]?.className || 'bg-slate-100 text-slate-600'}`}>
+                    {priorityMeta[selectedTask.priority]?.label || selectedTask.priority}
+                  </span>
                 </div>
                 <div className="rounded-xl bg-slate-50 p-3">
                   <div className="mb-1 text-xs uppercase tracking-wide text-slate-400">Due date</div>
@@ -443,9 +447,9 @@ function Dashboard() {
                 <div>
                   <label className="mb-1 block text-sm text-slate-600">Priority</label>
                   <select value={pendingTask.priority} onChange={(e) => setPendingTask({ ...pendingTask, priority: e.target.value })} className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 outline-none focus:border-indigo-400">
-                    <option value="low">Low</option>
-                    <option value="medium">Medium</option>
-                    <option value="high">High</option>
+                    <option value="low">No rush</option>
+                    <option value="medium">Important</option>
+                    <option value="high">Urgent</option>
                   </select>
                 </div>
                 <div>
