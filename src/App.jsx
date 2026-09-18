@@ -7,6 +7,8 @@ import Projects from './pages/client/Projects.jsx';
 import ProjectDetails from './pages/client/ProjectDetails.jsx';
 import Tags from './pages/client/Tags.jsx';
 import Profile from './pages/client/Profile.jsx';
+import AdminDashboard from './pages/admin/AdminDashboard.jsx';
+import AdminUsers from './pages/admin/AdminUsers.jsx';
 import ProtectedRoute from './routes/ProtectedRoute.jsx';
 import AdminRoute from './routes/AdminRoute.jsx';
 import LoadingSpinner from './components/ui/Loading.jsx';
@@ -44,7 +46,8 @@ function App() {
         <Route path="/app/tags" element={<ProtectedRoute><Tags /></ProtectedRoute>} />
         <Route path="/app/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
 
-        <Route path="/admin" element={<AdminRoute><div className="p-8 text-center text-slate-600">Admin dashboard coming soon</div></AdminRoute>} />
+        <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+        <Route path="/admin/users" element={<AdminRoute><AdminUsers /></AdminRoute>} />
       </Routes>
     </AuthProvider>
   );
