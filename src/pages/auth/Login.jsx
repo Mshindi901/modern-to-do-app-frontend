@@ -28,7 +28,14 @@ export default function Login() {
     setError('');
 
     try {
-      const result = await login(form);
+      const loginPayload = {
+        ...form,
+        logged_in: new Date().toISOString().split('T')[0],
+        logged_at: new Date().toISOString().split('T')[0],
+        time: new Date().toLocaleTimeString('en-GB', { hour12: false }),
+      };
+
+      const result = await login(loginPayload);
       const role = result?.user?.role || 'user';
       navigate(role === 'admin' ? '/admin' : '/app');
     } catch (err) {
