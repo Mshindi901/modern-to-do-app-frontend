@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { getUserTasks, toggleTaskComplete, toggleTaskStar, createTask, getCompletedTasks, getStarredTasks } from '../../api/taskApi.js';
 import { getUserProjects as getProjects, createProject } from '../../api/projectApi.js';
-import { createTag } from '../../api/tagApi.js';
+import { getUserTags, createTag } from '../../api/tagApi.js';
 import { getCurrentUser } from '../../api/userApi.js';
 import { getApiErrorMessage } from '../../api/axios.js';
 import Button from '../../components/ui/Button.jsx';
@@ -21,6 +21,7 @@ function Dashboard() {
   const { user, logout } = useAuth();
   const [tasks, setTasks] = useState([]);
   const [projects, setProjects] = useState([]);
+  const [tags, setTags] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
   const [selectedTask, setSelectedTask] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -58,10 +59,14 @@ function Dashboard() {
         getCurrentUser().catch(() => ({ data: { data: {} } })),
       ]);
 
+      const tagResp = await getUserTags().catch(() => ({ data: { data: [] } }));
+
       const projectData = projectResp?.data?.data || [];
       const profile = userResp?.data?.data || {};
 
       setProjects(Array.isArray(projectData) ? projectData : []);
+      const tagData = tagResp?.data?.data || [];
+      setTags(Array.isArray(tagData) ? tagData : []);
       setCurrentUser(profile || {});
 
       if (currentView === 'completed') {
@@ -185,6 +190,7 @@ function Dashboard() {
       await createTag({ name: tagForm.name, color: tagForm.color });
       setTagForm({ name: '', color: '#8b5cf6' });
       setIsTagModalOpen(false);
+      fetchDashboardData();
     } catch (error) {
       console.error(getApiErrorMessage(error));
     }
@@ -232,13 +238,10 @@ function Dashboard() {
               <span className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Projects</span>
               <button onClick={() => setIsProjectModalOpen(true)} className="rounded-lg p-1 text-slate-500 hover:bg-slate-100"><Plus size={16} /></button>
             </div>
-            <div className="space-y-1">
+            <div className="flex flex-wrap gap-2">
               {projects.slice(0, 5).map((project) => (
-                <button key={project.id} onClick={() => navigate(`/app/projects/${project.id}`)} className="flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-slate-600 hover:bg-slate-100">
-                  <div className="flex items-center gap-2">
-                    <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: project.color || '#818cf8' }} />
-                    {project.name}
-                  </div>
+                <button key={project.id} onClick={() => navigate(`/app/projects/${project.id}`)} className="max-w-full truncate rounded-full px-3 py-1.5 text-xs font-medium text-white shadow-sm transition hover:opacity-85" style={{ backgroundColor: project.color || '#818cf8' }} title={project.name}>
+                  {project.name}
                 </button>
               ))}
             </div>
@@ -248,6 +251,13 @@ function Dashboard() {
             <div className="mb-3 flex items-center justify-between px-2">
               <span className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Tags</span>
               <button onClick={() => setIsTagModalOpen(true)} className="rounded-lg p-1 text-slate-500 hover:bg-slate-100"><Plus size={16} /></button>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {tags.slice(0, 8).map((tag) => (
+                <span key={tag.id} className="max-w-full truncate rounded-full px-3 py-1.5 text-xs font-medium text-white shadow-sm" style={{ backgroundColor: tag.color || '#8b5cf6' }} title={tag.name}>
+                  {tag.name}
+                </span>
+              ))}
             </div>
           </div>
 
