@@ -195,14 +195,14 @@ function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-100 text-slate-800">
+    <div className="min-h-screen bg-gradient-to-br from-slate-100 via-slate-50 to-violet-50 text-slate-800">
       <div className="mx-auto flex max-w-[1600px] gap-5 p-4 lg:p-6">
-        <aside className="hidden w-72 shrink-0 rounded-3xl border border-slate-200 bg-white p-4 shadow-sm lg:flex lg:flex-col">
+        <aside className="hidden w-72 shrink-0 rounded-3xl border border-slate-200 bg-white/90 p-4 shadow-sm backdrop-blur-sm lg:flex lg:flex-col">
           <div className="mb-6 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-600 text-lg font-bold text-white">D</div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-indigo-500 text-lg font-bold text-white shadow-sm shadow-violet-200">T</div>
               <div>
-                <h2 className="text-lg font-semibold">Do.now</h2>
+                <h2 className="text-lg font-semibold tracking-tight text-slate-800">The lazy</h2>
               </div>
             </div>
           </div>
@@ -261,7 +261,7 @@ function Dashboard() {
           </div>
         </aside>
 
-        <main className="flex-1 rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
+        <main className="flex-1 rounded-3xl border border-slate-200 bg-white/95 p-4 shadow-sm sm:p-6">
           <div className="mb-6 flex flex-col gap-4 border-b border-slate-200 pb-5 md:flex-row md:items-center md:justify-between">
             <div>
               <p className="text-sm text-slate-500">Good morning</p>
@@ -283,7 +283,7 @@ function Dashboard() {
               { label: 'Pending', value: summary.pending, icon: CalendarDays },
               { label: 'Starred', value: summary.starred, icon: Star },
             ].map(({ label, value, icon: Icon }) => (
-              <div key={label} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+              <div key={label} className="rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-50 to-white p-4 shadow-sm shadow-slate-200/40">
                 <div className="mb-2 flex items-center justify-between text-slate-500">
                   <span className="text-sm">{label}</span>
                   <Icon size={16} />
