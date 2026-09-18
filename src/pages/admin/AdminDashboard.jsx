@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
-import { Users, ShieldCheck, UserRound, RefreshCcw, Clock3 } from 'lucide-react';
+import { Users, ShieldCheck, UserRound, RefreshCcw, Clock3, LogOut, Eye } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { getAllUsers, getVisitors } from '../../api/userApi.js';
 import { getApiErrorMessage } from '../../api/axios.js';
+import { useAuth } from '../../context/AuthContext.jsx';
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
+  const { logout } = useAuth();
   const [users, setUsers] = useState([]);
   const [visitors, setVisitors] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -45,6 +47,7 @@ export default function AdminDashboard() {
     total: users.length,
     admin: users.filter((user) => user.role === 'admin').length,
     user: users.filter((user) => user.role === 'user').length,
+    visitors: visitors.length,
   };
 
   return (
@@ -58,10 +61,11 @@ export default function AdminDashboard() {
           <div className="flex gap-3">
             <button onClick={() => navigate('/admin/users')} className="rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-indigo-500">Manage users</button>
             <button onClick={refreshDashboard} className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-700"><RefreshCcw size={15} /> Refresh</button>
+            <button onClick={() => { logout(); navigate('/login', { replace: true }); }} className="inline-flex items-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-4 py-2.5 text-sm font-medium text-rose-600"><LogOut size={15} /> Logout</button>
           </div>
         </div>
 
-        <div className="mb-6 grid gap-4 md:grid-cols-3">
+        <div className="mb-6 grid gap-4 md:grid-cols-4">
           <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
             <div className="mb-2 flex items-center justify-between text-slate-500"><span>Total users</span><Users size={16} /></div>
             <div className="text-3xl font-bold text-slate-800">{stats.total}</div>
@@ -74,10 +78,14 @@ export default function AdminDashboard() {
             <div className="mb-2 flex items-center justify-between text-slate-500"><span>Normal users</span><UserRound size={16} /></div>
             <div className="text-3xl font-bold text-slate-800">{stats.user}</div>
           </div>
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <div className="mb-2 flex items-center justify-between text-slate-500"><span>Visitors</span><Eye size={16} /></div>
+            <div className="text-3xl font-bold text-slate-800">{stats.visitors}</div>
+          </div>
         </div>
 
         <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-          <h2 className="mb-3 text-lg font-semibold text-slate-800">Recent logins</h2>
+          <h2 className="mb-3 text-lg font-semibold text-slate-800">Visitors</h2>
           {loading ? (
             <div className="text-sm text-slate-500">Loading activity…</div>
           ) : visitors.length === 0 ? (
