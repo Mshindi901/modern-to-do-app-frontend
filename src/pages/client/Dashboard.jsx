@@ -206,7 +206,33 @@ function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-100 via-slate-50 to-violet-50 text-slate-800">
-      <div className="mx-auto flex max-w-[1600px] gap-5 p-4 lg:p-6">
+      <div className="mx-auto flex max-w-[1600px] flex-col gap-3 p-2 sm:gap-5 sm:p-4 lg:flex-row lg:p-6">
+        <div className="flex flex-col gap-3 lg:hidden">
+          <div className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white/90 p-3 shadow-sm">
+            <div className="flex items-center gap-2">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-indigo-500 font-bold text-white">T</div>
+              <span className="font-semibold text-slate-800">The lazy</span>
+            </div>
+            <button onClick={logout} className="rounded-xl p-2 text-slate-500 hover:bg-slate-100" aria-label="Log out"><LogOut size={17} /></button>
+          </div>
+          <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white/90 px-3 py-2 shadow-sm">
+            <Search size={15} className="text-slate-400" />
+            <input value={search} onChange={(e) => setSearch(e.target.value)} className="w-full border-0 bg-transparent text-sm outline-none placeholder:text-slate-400" placeholder="Search tasks" />
+          </div>
+          <nav className="flex gap-2 overflow-x-auto pb-1 text-sm">
+            {[
+              { label: 'Inbox', icon: Inbox, path: '/app' },
+              { label: 'Today', icon: CalendarDays, path: '/app/today' },
+              { label: 'Upcoming', icon: ListTodo, path: '/app/upcoming' },
+              { label: 'Completed', icon: CheckCircle2, path: '/app/completed' },
+              { label: 'Starred', icon: Star, path: '/app/starred' },
+            ].map(({ label, icon: Icon, path }) => (
+              <button key={label} onClick={() => navigate(path)} className={`inline-flex shrink-0 items-center gap-2 rounded-xl px-3 py-2 ${currentView === (path === '/app' ? 'inbox' : path.replace('/app/', '')) ? 'bg-indigo-600 text-white' : 'border border-slate-200 bg-white text-slate-600'}`}>
+                <Icon size={15} /> {label}
+              </button>
+            ))}
+          </nav>
+        </div>
         <aside className="hidden w-72 shrink-0 rounded-3xl border border-slate-200 bg-white/90 p-4 shadow-sm backdrop-blur-sm lg:flex lg:flex-col">
           <div className="mb-6 flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -275,14 +301,14 @@ function Dashboard() {
           </div>
         </aside>
 
-        <main className="flex-1 rounded-3xl border border-slate-200 bg-white/95 p-4 shadow-sm sm:p-6">
+        <main className="min-w-0 flex-1 rounded-2xl border border-slate-200 bg-white/95 p-3 shadow-sm sm:rounded-3xl sm:p-6">
           <div className="mb-6 flex flex-col gap-4 border-b border-slate-200 pb-5 md:flex-row md:items-center md:justify-between">
             <div>
               <p className="text-sm text-slate-500">Good morning</p>
               <h1 className="text-3xl font-bold text-slate-800">{currentUser?.name || user?.name || 'Welcome'}</h1>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
               <button className="rounded-xl border border-slate-200 bg-slate-50 p-2.5 text-slate-600 hover:bg-slate-100"><Bell size={18} /></button>
               <Button onClick={() => setIsAddOpen(true)} className="gap-2 rounded-xl">
                 <Plus size={16} /> Add task
@@ -320,7 +346,7 @@ function Dashboard() {
               <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-10 text-center text-slate-500">You don't have any tasks yet.</div>
             ) : (
               visibleTasks.map((task) => (
-                <div key={task.id} className={`flex cursor-pointer items-center gap-3 rounded-2xl border p-3 transition ${selectedTask?.id === task.id ? 'border-indigo-200 bg-indigo-50' : 'border-slate-200 bg-white hover:bg-slate-50'}`} onClick={() => setSelectedTask(task)}>
+                <div key={task.id} className={`flex min-w-0 cursor-pointer items-center gap-3 rounded-2xl border p-3 transition ${selectedTask?.id === task.id ? 'border-indigo-200 bg-indigo-50' : 'border-slate-200 bg-white hover:bg-slate-50'}`} onClick={() => setSelectedTask(task)}>
                   <input type="checkbox" checked={Boolean(task.is_completed)} onChange={(e) => { e.stopPropagation(); handleTaskToggle(task.id, e.target.checked); }} className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
@@ -343,7 +369,7 @@ function Dashboard() {
           </div>
         </main>
 
-        <aside className="hidden w-[380px] shrink-0 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm xl:block">
+        <aside className="w-full shrink-0 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:rounded-3xl sm:p-5 xl:w-[380px]">
           {selectedTask ? (
             <div>
               <div className="mb-5 flex items-center justify-between">
