@@ -232,6 +232,32 @@ function Dashboard() {
               </button>
             ))}
           </nav>
+          <div className="rounded-2xl border border-slate-200 bg-white/90 p-3 shadow-sm">
+            <div className="mb-2 flex items-center justify-between">
+              <span className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Projects</span>
+              <button onClick={() => setIsProjectModalOpen(true)} className="rounded-lg p-1 text-slate-500 hover:bg-slate-100" aria-label="Add project"><Plus size={16} /></button>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {projects.slice(0, 8).map((project) => (
+                <button key={project.id} onClick={() => navigate(`/app/projects/${project.id}`)} className="max-w-full truncate rounded-full px-3 py-1.5 text-xs font-medium text-white shadow-sm transition hover:opacity-85" style={{ backgroundColor: project.color || '#818cf8' }} title={project.name}>
+                  {project.name}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="rounded-2xl border border-slate-200 bg-white/90 p-3 shadow-sm">
+            <div className="mb-2 flex items-center justify-between">
+              <span className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Tags</span>
+              <button onClick={() => setIsTagModalOpen(true)} className="rounded-lg p-1 text-slate-500 hover:bg-slate-100" aria-label="Add tag"><Plus size={16} /></button>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {tags.slice(0, 8).map((tag) => (
+                <span key={tag.id} className="max-w-full truncate rounded-full px-3 py-1.5 text-xs font-medium text-white shadow-sm" style={{ backgroundColor: tag.color || '#8b5cf6' }} title={tag.name}>
+                  {tag.name}
+                </span>
+              ))}
+            </div>
+          </div>
         </div>
         <aside className="hidden w-72 shrink-0 rounded-3xl border border-slate-200 bg-white/90 p-4 shadow-sm backdrop-blur-sm lg:flex lg:flex-col">
           <div className="mb-6 flex items-center justify-between">
