@@ -84,30 +84,53 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-          <h2 className="mb-3 text-lg font-semibold text-slate-800">Visitors</h2>
-          {loading ? (
-            <div className="text-sm text-slate-500">Loading activity…</div>
-          ) : visitors.length === 0 ? (
-            <div className="text-sm text-slate-500">No visitor activity yet.</div>
-          ) : (
-            <div className="space-y-2">
-              {visitors.slice(0, 8).map((visitor) => (
-                <div key={visitor.id} className="flex items-center justify-between rounded-xl border border-slate-200 bg-white px-3 py-2">
-                  <div>
-                    <div className="font-medium text-slate-800">{visitor.user_name}</div>
-                    <div className="text-sm text-slate-500">{visitor.user_email}</div>
+        <div className="mb-6 grid gap-4 lg:grid-cols-2">
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <h2 className="mb-3 text-lg font-semibold text-slate-800">Users</h2>
+            {loading ? (
+              <div className="text-sm text-slate-500">Loading users…</div>
+            ) : users.length === 0 ? (
+              <div className="text-sm text-slate-500">No users found.</div>
+            ) : (
+              <div className="space-y-2">
+                {users.slice(0, 5).map((user) => (
+                  <div key={user.id} className="flex items-center justify-between rounded-xl border border-slate-200 bg-white px-3 py-2">
+                    <div>
+                      <div className="font-medium text-slate-800">{user.name}</div>
+                      <div className="text-sm text-slate-500">{user.email}</div>
+                    </div>
+                    <span className="rounded-full bg-slate-100 px-2 py-1 text-xs text-slate-600">{user.role}</span>
                   </div>
-                  <div className="flex items-center gap-3 text-xs text-slate-500">
-                    <span>{visitor.logged_at || visitor.logged_in || '—'}</span>
-                    <span className="inline-flex items-center gap-1 rounded-full bg-indigo-50 px-2 py-1 text-indigo-600">
-                      <Clock3 size={12} /> {visitor.time || '—'}
-                    </span>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <h2 className="mb-3 text-lg font-semibold text-slate-800">Visitors</h2>
+            {loading ? (
+              <div className="text-sm text-slate-500">Loading activity…</div>
+            ) : visitors.length === 0 ? (
+              <div className="text-sm text-slate-500">No visitor activity yet.</div>
+            ) : (
+              <div className="space-y-2">
+                {visitors.slice(0, 8).map((visitor) => (
+                  <div key={visitor.id} className="flex items-center justify-between rounded-xl border border-slate-200 bg-white px-3 py-2">
+                    <div>
+                      <div className="font-medium text-slate-800">{visitor.user_name}</div>
+                      <div className="text-sm text-slate-500">{visitor.user_email}</div>
+                    </div>
+                    <div className="flex items-center gap-3 text-xs text-slate-500">
+                      <span>{visitor.logged_at || visitor.logged_in || '—'}</span>
+                      <span className="inline-flex items-center gap-1 rounded-full bg-indigo-50 px-2 py-1 text-indigo-600">
+                        <Clock3 size={12} /> {visitor.time || '—'}
+                      </span>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
