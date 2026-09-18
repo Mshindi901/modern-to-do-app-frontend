@@ -119,6 +119,7 @@ export default function AdminDashboard() {
                     <div>
                       <div className="font-medium text-slate-800">{visitor.user_name}</div>
                       <div className="text-sm text-slate-500">{visitor.user_email}</div>
+                      <div className="text-[11px] text-slate-400">IP: {visitor.user_ip || 'unknown'}</div>
                     </div>
                     <div className="flex items-center gap-3 text-xs text-slate-500">
                       <span>{visitor.logged_at || visitor.logged_in || '—'}</span>
