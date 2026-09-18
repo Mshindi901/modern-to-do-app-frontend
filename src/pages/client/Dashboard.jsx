@@ -96,6 +96,10 @@ function Dashboard() {
   const visibleTasks = useMemo(() => {
     let records = [...tasks];
 
+    if (currentView !== 'completed') {
+      records = records.filter((task) => !task.is_completed);
+    }
+
     if (currentView === 'today') {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
