@@ -9,6 +9,7 @@ import Tags from './pages/client/Tags.jsx';
 import Profile from './pages/client/Profile.jsx';
 import AdminDashboard from './pages/admin/AdminDashboard.jsx';
 import AdminUsers from './pages/admin/AdminUsers.jsx';
+import AdminVisitors from './pages/admin/AdminVisitors.jsx';
 import ProtectedRoute from './routes/ProtectedRoute.jsx';
 import AdminRoute from './routes/AdminRoute.jsx';
 import LoadingSpinner from './components/ui/Loading.jsx';
@@ -48,6 +49,7 @@ function App() {
 
         <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
         <Route path="/admin/users" element={<AdminRoute><AdminUsers /></AdminRoute>} />
+        <Route path="/admin/visitors" element={<AdminRoute><AdminVisitors /></AdminRoute>} />
       </Routes>
     </AuthProvider>
   );

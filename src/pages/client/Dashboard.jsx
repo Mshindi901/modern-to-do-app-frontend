@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
-import { CalendarDays, CheckCircle2, ListTodo, Star, Plus, Search, Inbox, Bell, Filter, Settings, LogOut } from 'lucide-react';
+import { CalendarDays, CheckCircle2, ListTodo, Star, Plus, Search, Inbox, Bell, Filter, Settings, LogOut, Trash2 } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { getUserTasks, toggleTaskComplete, toggleTaskStar, createTask, getCompletedTasks, getStarredTasks } from '../../api/taskApi.js';
 import { getUserProjects as getProjects, createProject } from '../../api/projectApi.js';
 import { getUserTags, createTag } from '../../api/tagApi.js';
-import { getUserNotes, createNote } from '../../api/noteApi.js';
-import { getUserPlans, createPlan } from '../../api/planApi.js';
+import { getUserNotes, createNote, deleteNote } from '../../api/noteApi.js';
+import { getUserPlans, createPlan, deletePlan } from '../../api/planApi.js';
 import { getCurrentUser } from '../../api/userApi.js';
 import { getApiErrorMessage } from '../../api/axios.js';
 import Button from '../../components/ui/Button.jsx';
@@ -38,7 +38,7 @@ function Dashboard() {
   const [projectForm, setProjectForm] = useState({ name: '', color: '#6366f1' });
   const [tagForm, setTagForm] = useState({ name: '', color: '#8b5cf6' });
   const [noteForm, setNoteForm] = useState({ title: '', context: '' });
-  const [planForm, setPlanForm] = useState({ title: '', description: '', start_at: '', end_at: '' });
+  const [planForm, setPlanForm] = useState({ title: '', description: '', date: '', start_at: '', end_at: '' });
   const [pendingTask, setPendingTask] = useState({ title: '', context: '', priority: 'low', due_date: '', project_id: '', is_completed: false, is_starred: false });
 
   const currentView = useMemo(() => {
@@ -230,11 +230,31 @@ function Dashboard() {
     if (!selectedTask) return;
     try {
       await createPlan({ ...planForm, task_id: selectedTask.id });
-      setPlanForm({ title: '', description: '', start_at: '', end_at: '' });
+      setPlanForm({ title: '', description: '', date: '', start_at: '', end_at: '' });
       setIsPlanModalOpen(false);
       fetchDashboardData();
     } catch (error) {
       console.error(getApiErrorMessage(error));
+    }
+  };
+
+  const handleDeleteNote = async (noteId) => {
+    try {
+      setNotes((prev) => prev.filter((note) => note.id !== noteId));
+      await deleteNote(noteId);
+    } catch (error) {
+      console.error(getApiErrorMessage(error));
+      fetchDashboardData();
+    }
+  };
+
+  const handleDeletePlan = async (planId) => {
+    try {
+      setPlans((prev) => prev.filter((plan) => plan.id !== planId));
+      await deletePlan(planId);
+    } catch (error) {
+      console.error(getApiErrorMessage(error));
+      fetchDashboardData();
     }
   };
 
@@ -437,13 +457,13 @@ function Dashboard() {
           {selectedTask ? (
             <div>
               <div className="mb-5 flex items-center justify-between">
-                <h3 className="text-xl font-semibold text-slate-800">{selectedTask.title}</h3>
+                <h3 className="text-xl font-bold text-slate-950">{selectedTask.title}</h3>
                 <button onClick={() => handleStarToggle(selectedTask.id, !selectedTask.is_starred)} className="rounded-full p-2 text-slate-400 hover:bg-slate-100 hover:text-yellow-500">
                   <Star size={18} className={selectedTask.is_starred ? 'fill-yellow-400 text-yellow-400' : ''} />
                 </button>
               </div>
 
-              <div className="space-y-4 text-sm text-slate-600">
+              <div className="space-y-4 text-sm font-medium text-slate-800">
                 <div className="flex items-center justify-between rounded-xl bg-slate-50 p-3">
                   <span>Completed</span>
                   <input type="checkbox" checked={Boolean(selectedTask.is_completed)} onChange={(e) => handleTaskToggle(selectedTask.id, e.target.checked)} className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" />
@@ -474,7 +494,12 @@ function Dashboard() {
                   <div className="space-y-2">
                     {notes.filter((note) => String(note.task_id) === String(selectedTask.id)).map((note) => (
                       <div key={note.id} className="rounded-lg border border-slate-200 bg-white p-2">
-                        <div className="font-medium text-slate-700">{note.title}</div>
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="font-semibold text-slate-900">{note.title}</div>
+                          <button type="button" onClick={() => handleDeleteNote(note.id)} className="rounded-md p-1 text-slate-400 hover:bg-rose-50 hover:text-rose-600" aria-label={`Delete note ${note.title}`} title="Delete note">
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
                         <div className="mt-1 text-xs text-slate-500">{note.context}</div>
                       </div>
                     ))}
@@ -489,9 +514,16 @@ function Dashboard() {
                   <div className="space-y-2">
                     {plans.filter((plan) => String(plan.task_id) === String(selectedTask.id)).map((plan) => (
                       <div key={plan.id} className="rounded-lg border border-slate-200 bg-white p-2">
-                        <div className="font-medium text-slate-700">{plan.title}</div>
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="font-semibold text-slate-900">{plan.title}</div>
+                          <button type="button" onClick={() => handleDeletePlan(plan.id)} className="rounded-md p-1 text-slate-400 hover:bg-rose-50 hover:text-rose-600" aria-label={`Delete plan ${plan.title}`} title="Delete plan">
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
                         <div className="mt-1 text-xs text-slate-500">{plan.description || 'No plan description.'}</div>
-                        <div className="mt-1 text-[11px] text-slate-400">{new Date(plan.start_at).toLocaleString()} - {new Date(plan.end_at).toLocaleString()}</div>
+                        <div className="mt-1 text-[11px] text-slate-400">
+                          {plan.date ? new Date(plan.date).toISOString().slice(0, 10) : 'No date'} · {plan.start_at} - {plan.end_at}
+                        </div>
                       </div>
                     ))}
                     {!plans.some((plan) => String(plan.task_id) === String(selectedTask.id)) && <p className="text-xs text-slate-400">No plans yet.</p>}
@@ -590,9 +622,10 @@ function Dashboard() {
             <form onSubmit={handleCreatePlan} className="space-y-4">
               <input value={planForm.title} onChange={(e) => setPlanForm({ ...planForm, title: e.target.value })} placeholder="Plan title" className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 outline-none focus:border-indigo-400" required />
               <textarea value={planForm.description} onChange={(e) => setPlanForm({ ...planForm, description: e.target.value })} placeholder="Plan description" className="min-h-20 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 outline-none focus:border-indigo-400" />
+              <label className="block text-sm text-slate-600">Date<input type="date" value={planForm.date} onChange={(e) => setPlanForm({ ...planForm, date: e.target.value })} className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm outline-none focus:border-indigo-400" required /></label>
               <div className="grid gap-3 sm:grid-cols-2">
-                <label className="text-sm text-slate-600">Start<input type="datetime-local" value={planForm.start_at} onChange={(e) => setPlanForm({ ...planForm, start_at: e.target.value })} className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm outline-none focus:border-indigo-400" required /></label>
-                <label className="text-sm text-slate-600">End<input type="datetime-local" value={planForm.end_at} onChange={(e) => setPlanForm({ ...planForm, end_at: e.target.value })} className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm outline-none focus:border-indigo-400" required /></label>
+                <label className="text-sm text-slate-600">Start time<input type="time" value={planForm.start_at} onChange={(e) => setPlanForm({ ...planForm, start_at: e.target.value })} className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm outline-none focus:border-indigo-400" required /></label>
+                <label className="text-sm text-slate-600">End time<input type="time" value={planForm.end_at} onChange={(e) => setPlanForm({ ...planForm, end_at: e.target.value })} className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm outline-none focus:border-indigo-400" required /></label>
               </div>
               <div className="flex justify-end gap-3">
                 <button type="button" onClick={() => setIsPlanModalOpen(false)} className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm text-slate-600">Cancel</button>

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Users, ShieldCheck, UserRound, RefreshCcw, Clock3, LogOut, Eye } from 'lucide-react';
+import { Users, ShieldCheck, UserRound, RefreshCcw, LogOut, Eye, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { getAllUsers, getVisitors } from '../../api/userApi.js';
 import { getApiErrorMessage } from '../../api/axios.js';
@@ -60,6 +60,7 @@ export default function AdminDashboard() {
           </div>
           <div className="flex flex-wrap gap-2">
             <button onClick={() => navigate('/admin/users')} className="rounded-xl bg-indigo-600 px-3 py-2.5 text-sm font-medium text-white hover:bg-indigo-500 sm:px-4">Manage users</button>
+            <button onClick={() => navigate('/admin/visitors')} className="inline-flex items-center gap-2 rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-2.5 text-sm font-medium text-indigo-700 hover:bg-indigo-100 sm:px-4">View visitors <ArrowRight size={15} /></button>
             <button onClick={refreshDashboard} className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-700 sm:px-4"><RefreshCcw size={15} /> Refresh</button>
             <button onClick={() => { logout(); navigate('/login', { replace: true }); }} className="inline-flex items-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2.5 text-sm font-medium text-rose-600 sm:px-4"><LogOut size={15} /> Logout</button>
           </div>
@@ -84,54 +85,31 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        <div className="mb-6 grid gap-4 lg:grid-cols-2">
-          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-            <h2 className="mb-3 text-lg font-semibold text-slate-800">Users</h2>
+        <div className="mb-6 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+          <div className="mb-4 flex items-center justify-between">
+            <div>
+              <h2 className="text-lg font-semibold text-slate-800">Users</h2>
+              <p className="text-sm text-slate-500">All registered users</p>
+            </div>
+            <button onClick={() => navigate('/admin/users')} className="text-sm font-medium text-indigo-600 hover:text-indigo-700">Manage users</button>
+          </div>
             {loading ? (
               <div className="text-sm text-slate-500">Loading users…</div>
             ) : users.length === 0 ? (
               <div className="text-sm text-slate-500">No users found.</div>
             ) : (
-              <div className="space-y-2">
+              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
                 {users.map((user) => (
-                  <div key={user.id || user.email} className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2">
+                  <div key={user.id || user.email} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
                     <div>
-                      <div className="font-medium text-slate-800">{user.name}</div>
+                      <div className="font-semibold text-slate-800">{user.name}</div>
                       <div className="text-sm text-slate-500">{user.email}</div>
                     </div>
-                    <span className="rounded-full bg-slate-100 px-2 py-1 text-xs text-slate-600">{user.role}</span>
+                    <span className="mt-4 inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">{user.role}</span>
                   </div>
                 ))}
               </div>
             )}
-          </div>
-
-          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-            <h2 className="mb-3 text-lg font-semibold text-slate-800">Visitors</h2>
-            {loading ? (
-              <div className="text-sm text-slate-500">Loading activity…</div>
-            ) : visitors.length === 0 ? (
-              <div className="text-sm text-slate-500">No visitor activity yet.</div>
-            ) : (
-              <div className="space-y-2">
-                {visitors.map((visitor, index) => (
-                  <div key={visitor.id || `${visitor.user_email || visitor.email || 'visitor'}-${visitor.logged_at || visitor.logged_in || index}`} className="flex flex-col gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                      <div className="font-medium text-slate-800">{visitor.user_name || visitor.name || 'Unknown visitor'}</div>
-                      <div className="text-sm text-slate-500">{visitor.user_email || visitor.email || 'No email recorded'}</div>
-                      <div className="text-xs text-slate-500">IP: {visitor.user_ip || 'unknown'}</div>
-                    </div>
-                    <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500">
-                      <span>{visitor.logged_at || visitor.logged_in || '—'}</span>
-                      <span className="inline-flex items-center gap-1 rounded-full bg-indigo-50 px-2 py-1 text-indigo-600">
-                        <Clock3 size={12} /> {visitor.time || '—'}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
         </div>
       </div>
     </div>
