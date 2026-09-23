@@ -146,7 +146,7 @@ function Dashboard() {
   }, [tasks, currentView, search]);
 
   const summary = useMemo(() => ({
-    total: tasks.length,
+    total: tasks.filter((task) => !task.is_completed).length,
     completed: tasks.filter((task) => task.is_completed).length,
     pending: tasks.filter((task) => !task.is_completed).length,
     starred: tasks.filter((task) => task.is_starred).length,
