@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
-import { CalendarDays, CheckCircle2, ListTodo, Star, Plus, Search, Inbox, Bell, Filter, Settings, FolderKanban, Tag, LogOut, ChevronRight } from 'lucide-react';
+import { CalendarDays, CheckCircle2, ListTodo, Star, Plus, Search, Inbox, Bell, Filter, Settings, LogOut } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { getUserTasks, toggleTaskComplete, toggleTaskStar, createTask, getCompletedTasks, getStarredTasks } from '../../api/taskApi.js';
 import { getUserProjects as getProjects, createProject } from '../../api/projectApi.js';
 import { getUserTags, createTag } from '../../api/tagApi.js';
+import { getUserNotes, createNote } from '../../api/noteApi.js';
+import { getUserPlans, createPlan } from '../../api/planApi.js';
 import { getCurrentUser } from '../../api/userApi.js';
 import { getApiErrorMessage } from '../../api/axios.js';
 import Button from '../../components/ui/Button.jsx';
@@ -22,6 +24,8 @@ function Dashboard() {
   const [tasks, setTasks] = useState([]);
   const [projects, setProjects] = useState([]);
   const [tags, setTags] = useState([]);
+  const [notes, setNotes] = useState([]);
+  const [plans, setPlans] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
   const [selectedTask, setSelectedTask] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -29,8 +33,12 @@ function Dashboard() {
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
   const [isTagModalOpen, setIsTagModalOpen] = useState(false);
+  const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
+  const [isPlanModalOpen, setIsPlanModalOpen] = useState(false);
   const [projectForm, setProjectForm] = useState({ name: '', color: '#6366f1' });
   const [tagForm, setTagForm] = useState({ name: '', color: '#8b5cf6' });
+  const [noteForm, setNoteForm] = useState({ title: '', context: '' });
+  const [planForm, setPlanForm] = useState({ title: '', description: '', start_at: '', end_at: '' });
   const [pendingTask, setPendingTask] = useState({ title: '', context: '', priority: 'low', due_date: '', project_id: '', is_completed: false, is_starred: false });
 
   const currentView = useMemo(() => {
@@ -54,9 +62,11 @@ function Dashboard() {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      const [projectResp, userResp] = await Promise.all([
+      const [projectResp, userResp, noteResp, planResp] = await Promise.all([
         getProjects().catch(() => ({ data: { data: [] } })),
         getCurrentUser().catch(() => ({ data: { data: {} } })),
+        getUserNotes().catch(() => ({ data: { data: [] } })),
+        getUserPlans().catch(() => ({ data: { data: [] } })),
       ]);
 
       const tagResp = await getUserTags().catch(() => ({ data: { data: [] } }));
@@ -67,6 +77,8 @@ function Dashboard() {
       setProjects(Array.isArray(projectData) ? projectData : []);
       const tagData = tagResp?.data?.data || [];
       setTags(Array.isArray(tagData) ? tagData : []);
+      setNotes(Array.isArray(noteResp?.data?.data) ? noteResp.data.data : []);
+      setPlans(Array.isArray(planResp?.data?.data) ? planResp.data.data : []);
       setCurrentUser(profile || {});
 
       if (currentView === 'completed') {
@@ -200,6 +212,32 @@ function Dashboard() {
     }
   };
 
+  const handleCreateNote = async (e) => {
+    e.preventDefault();
+    if (!selectedTask) return;
+    try {
+      await createNote({ ...noteForm, task_id: selectedTask.id });
+      setNoteForm({ title: '', context: '' });
+      setIsNoteModalOpen(false);
+      fetchDashboardData();
+    } catch (error) {
+      console.error(getApiErrorMessage(error));
+    }
+  };
+
+  const handleCreatePlan = async (e) => {
+    e.preventDefault();
+    if (!selectedTask) return;
+    try {
+      await createPlan({ ...planForm, task_id: selectedTask.id });
+      setPlanForm({ title: '', description: '', start_at: '', end_at: '' });
+      setIsPlanModalOpen(false);
+      fetchDashboardData();
+    } catch (error) {
+      console.error(getApiErrorMessage(error));
+    }
+  };
+
   if (loading) {
     return <div className="flex min-h-screen items-center justify-center bg-slate-100"><div className="h-10 w-10 animate-spin rounded-full border-4 border-slate-200 border-t-indigo-500" /></div>;
   }
@@ -232,10 +270,10 @@ function Dashboard() {
               </button>
             ))}
           </nav>
-          <div className="rounded-2xl border border-slate-200 bg-white/90 p-3 shadow-sm">
+          <div className="rounded-2xl border border-slate-700 bg-slate-800 p-4 shadow-sm">
             <div className="mb-2 flex items-center justify-between">
-              <span className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Projects</span>
-              <button onClick={() => setIsProjectModalOpen(true)} className="rounded-lg p-1 text-slate-500 hover:bg-slate-100" aria-label="Add project"><Plus size={16} /></button>
+              <span className="text-xs font-semibold uppercase tracking-[0.18em] text-white">Projects</span>
+              <button onClick={() => setIsProjectModalOpen(true)} className="rounded-lg p-1 text-white hover:bg-slate-700" aria-label="Add project"><Plus size={16} /></button>
             </div>
             <div className="flex flex-wrap gap-2">
               {projects.slice(0, 8).map((project) => (
@@ -245,10 +283,10 @@ function Dashboard() {
               ))}
             </div>
           </div>
-          <div className="rounded-2xl border border-slate-200 bg-white/90 p-3 shadow-sm">
+          <div className="rounded-2xl border border-slate-700 bg-slate-800 p-4 shadow-sm">
             <div className="mb-2 flex items-center justify-between">
-              <span className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Tags</span>
-              <button onClick={() => setIsTagModalOpen(true)} className="rounded-lg p-1 text-slate-500 hover:bg-slate-100" aria-label="Add tag"><Plus size={16} /></button>
+              <span className="text-xs font-semibold uppercase tracking-[0.18em] text-white">Tags</span>
+              <button onClick={() => setIsTagModalOpen(true)} className="rounded-lg p-1 text-white hover:bg-slate-700" aria-label="Add tag"><Plus size={16} /></button>
             </div>
             <div className="flex flex-wrap gap-2">
               {tags.slice(0, 8).map((tag) => (
@@ -289,10 +327,10 @@ function Dashboard() {
             ))}
           </nav>
 
-          <div className="mt-7">
-            <div className="mb-3 flex items-center justify-between px-2">
-              <span className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Projects</span>
-              <button onClick={() => setIsProjectModalOpen(true)} className="rounded-lg p-1 text-slate-500 hover:bg-slate-100"><Plus size={16} /></button>
+          <div className="mt-7 rounded-2xl bg-slate-800 p-4">
+            <div className="mb-3 flex items-center justify-between">
+              <span className="text-xs font-semibold uppercase tracking-[0.18em] text-white">Projects</span>
+              <button onClick={() => setIsProjectModalOpen(true)} className="rounded-lg p-1 text-white hover:bg-slate-700"><Plus size={16} /></button>
             </div>
             <div className="flex flex-wrap gap-2">
               {projects.slice(0, 5).map((project) => (
@@ -303,10 +341,10 @@ function Dashboard() {
             </div>
           </div>
 
-          <div className="mt-7">
-            <div className="mb-3 flex items-center justify-between px-2">
-              <span className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Tags</span>
-              <button onClick={() => setIsTagModalOpen(true)} className="rounded-lg p-1 text-slate-500 hover:bg-slate-100"><Plus size={16} /></button>
+          <div className="mt-4 rounded-2xl bg-slate-800 p-4">
+            <div className="mb-3 flex items-center justify-between">
+              <span className="text-xs font-semibold uppercase tracking-[0.18em] text-white">Tags</span>
+              <button onClick={() => setIsTagModalOpen(true)} className="rounded-lg p-1 text-white hover:bg-slate-700"><Plus size={16} /></button>
             </div>
             <div className="flex flex-wrap gap-2">
               {tags.slice(0, 8).map((tag) => (
@@ -428,6 +466,37 @@ function Dashboard() {
                   <div className="mb-1 text-xs uppercase tracking-wide text-slate-400">Description</div>
                   <p>{selectedTask.context || 'No description provided.'}</p>
                 </div>
+                <div className="rounded-xl bg-slate-50 p-3">
+                  <div className="mb-2 flex items-center justify-between">
+                    <div className="text-xs uppercase tracking-wide text-slate-400">Notes</div>
+                    <button onClick={() => setIsNoteModalOpen(true)} className="rounded-lg p-1 text-indigo-600 hover:bg-indigo-100" aria-label="Add note"><Plus size={15} /></button>
+                  </div>
+                  <div className="space-y-2">
+                    {notes.filter((note) => String(note.task_id) === String(selectedTask.id)).map((note) => (
+                      <div key={note.id} className="rounded-lg border border-slate-200 bg-white p-2">
+                        <div className="font-medium text-slate-700">{note.title}</div>
+                        <div className="mt-1 text-xs text-slate-500">{note.context}</div>
+                      </div>
+                    ))}
+                    {!notes.some((note) => String(note.task_id) === String(selectedTask.id)) && <p className="text-xs text-slate-400">No notes yet.</p>}
+                  </div>
+                </div>
+                <div className="rounded-xl bg-slate-50 p-3">
+                  <div className="mb-2 flex items-center justify-between">
+                    <div className="text-xs uppercase tracking-wide text-slate-400">Plans</div>
+                    <button onClick={() => setIsPlanModalOpen(true)} className="rounded-lg p-1 text-indigo-600 hover:bg-indigo-100" aria-label="Add plan"><Plus size={15} /></button>
+                  </div>
+                  <div className="space-y-2">
+                    {plans.filter((plan) => String(plan.task_id) === String(selectedTask.id)).map((plan) => (
+                      <div key={plan.id} className="rounded-lg border border-slate-200 bg-white p-2">
+                        <div className="font-medium text-slate-700">{plan.title}</div>
+                        <div className="mt-1 text-xs text-slate-500">{plan.description || 'No plan description.'}</div>
+                        <div className="mt-1 text-[11px] text-slate-400">{new Date(plan.start_at).toLocaleString()} - {new Date(plan.end_at).toLocaleString()}</div>
+                      </div>
+                    ))}
+                    {!plans.some((plan) => String(plan.task_id) === String(selectedTask.id)) && <p className="text-xs text-slate-400">No plans yet.</p>}
+                  </div>
+                </div>
               </div>
             </div>
           ) : (
@@ -486,6 +555,48 @@ function Dashboard() {
               <div className="flex justify-end gap-3 pt-2">
                 <button type="button" onClick={() => setIsTagModalOpen(false)} className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-600">Cancel</button>
                 <button type="submit" className="rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-violet-500">Create tag</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {isNoteModalOpen && selectedTask && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 p-4">
+          <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl">
+            <div className="mb-5 flex items-center justify-between">
+              <h3 className="text-xl font-semibold">Add note</h3>
+              <button type="button" onClick={() => setIsNoteModalOpen(false)} className="text-slate-400 hover:text-slate-600">✕</button>
+            </div>
+            <form onSubmit={handleCreateNote} className="space-y-4">
+              <input value={noteForm.title} onChange={(e) => setNoteForm({ ...noteForm, title: e.target.value })} placeholder="Note title" className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 outline-none focus:border-indigo-400" required />
+              <textarea value={noteForm.context} onChange={(e) => setNoteForm({ ...noteForm, context: e.target.value })} placeholder="Add more information" className="min-h-28 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 outline-none focus:border-indigo-400" />
+              <div className="flex justify-end gap-3">
+                <button type="button" onClick={() => setIsNoteModalOpen(false)} className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm text-slate-600">Cancel</button>
+                <button type="submit" className="rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white">Save note</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {isPlanModalOpen && selectedTask && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 p-4">
+          <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl">
+            <div className="mb-5 flex items-center justify-between">
+              <h3 className="text-xl font-semibold">Add plan</h3>
+              <button type="button" onClick={() => setIsPlanModalOpen(false)} className="text-slate-400 hover:text-slate-600">✕</button>
+            </div>
+            <form onSubmit={handleCreatePlan} className="space-y-4">
+              <input value={planForm.title} onChange={(e) => setPlanForm({ ...planForm, title: e.target.value })} placeholder="Plan title" className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 outline-none focus:border-indigo-400" required />
+              <textarea value={planForm.description} onChange={(e) => setPlanForm({ ...planForm, description: e.target.value })} placeholder="Plan description" className="min-h-20 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 outline-none focus:border-indigo-400" />
+              <div className="grid gap-3 sm:grid-cols-2">
+                <label className="text-sm text-slate-600">Start<input type="datetime-local" value={planForm.start_at} onChange={(e) => setPlanForm({ ...planForm, start_at: e.target.value })} className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm outline-none focus:border-indigo-400" required /></label>
+                <label className="text-sm text-slate-600">End<input type="datetime-local" value={planForm.end_at} onChange={(e) => setPlanForm({ ...planForm, end_at: e.target.value })} className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm outline-none focus:border-indigo-400" required /></label>
+              </div>
+              <div className="flex justify-end gap-3">
+                <button type="button" onClick={() => setIsPlanModalOpen(false)} className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm text-slate-600">Cancel</button>
+                <button type="submit" className="rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white">Save plan</button>
               </div>
             </form>
           </div>

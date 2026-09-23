@@ -5,7 +5,7 @@ import { signIn, signUp } from '../api/authApi.js';
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [token, setToken] = useState(localStorage.getItem('todo_token') || '');
+  const [token, setToken] = useState(sessionStorage.getItem('todo_token') || '');
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -29,7 +29,7 @@ export function AuthProvider({ children }) {
     const decoded = decodeToken(jwtToken);
 
     if (!decoded) {
-      localStorage.removeItem('todo_token');
+      sessionStorage.removeItem('todo_token');
       setToken('');
       setUser(null);
       setLoading(false);
@@ -53,7 +53,7 @@ export function AuthProvider({ children }) {
     } catch (error) {
       const status = error?.response?.status;
       if (status === 401 || status === 403) {
-        localStorage.removeItem('todo_token');
+        sessionStorage.removeItem('todo_token');
         setToken('');
         setUser(null);
       }
@@ -63,6 +63,7 @@ export function AuthProvider({ children }) {
   };
 
   useEffect(() => {
+    localStorage.removeItem('todo_token');
     refreshUser(token);
   }, [token]);
 
@@ -74,7 +75,7 @@ export function AuthProvider({ children }) {
       throw new Error('Login response missing token');
     }
 
-    localStorage.setItem('todo_token', jwtToken);
+    sessionStorage.setItem('todo_token', jwtToken);
     const decoded = decodeToken(jwtToken);
 
     if (!decoded) {
@@ -96,7 +97,7 @@ export function AuthProvider({ children }) {
   };
 
   const logout = () => {
-    localStorage.removeItem('todo_token');
+    sessionStorage.removeItem('todo_token');
     setToken('');
     setUser(null);
   };

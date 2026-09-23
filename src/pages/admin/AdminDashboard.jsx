@@ -93,8 +93,8 @@ export default function AdminDashboard() {
               <div className="text-sm text-slate-500">No users found.</div>
             ) : (
               <div className="space-y-2">
-                {users.slice(0, 5).map((user) => (
-                  <div key={user.id} className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2">
+                {users.map((user) => (
+                  <div key={user.id || user.email} className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2">
                     <div>
                       <div className="font-medium text-slate-800">{user.name}</div>
                       <div className="text-sm text-slate-500">{user.email}</div>
@@ -114,11 +114,11 @@ export default function AdminDashboard() {
               <div className="text-sm text-slate-500">No visitor activity yet.</div>
             ) : (
               <div className="space-y-2">
-                {visitors.slice(0, 8).map((visitor) => (
-                  <div key={visitor.id} className="flex flex-col gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 sm:flex-row sm:items-center sm:justify-between">
+                {visitors.map((visitor, index) => (
+                  <div key={visitor.id || `${visitor.user_email || visitor.email || 'visitor'}-${visitor.logged_at || visitor.logged_in || index}`} className="flex flex-col gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                      <div className="font-medium text-slate-800">{visitor.user_name}</div>
-                      <div className="text-sm text-slate-500">{visitor.user_email}</div>
+                      <div className="font-medium text-slate-800">{visitor.user_name || visitor.name || 'Unknown visitor'}</div>
+                      <div className="text-sm text-slate-500">{visitor.user_email || visitor.email || 'No email recorded'}</div>
                       <div className="text-xs text-slate-500">IP: {visitor.user_ip || 'unknown'}</div>
                     </div>
                     <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500">
