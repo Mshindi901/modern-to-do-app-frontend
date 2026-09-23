@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
-import { CalendarDays, CheckCircle2, ListTodo, Star, Plus, Search, Inbox, Bell, Filter, Settings, LogOut, Trash2 } from 'lucide-react';
+import { CalendarDays, CheckCircle2, ListTodo, Star, Plus, Search, Inbox, Bell, Filter, Settings, LogOut, Trash2, ArrowRight } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { getUserTasks, toggleTaskComplete, toggleTaskStar, createTask, getCompletedTasks, getStarredTasks } from '../../api/taskApi.js';
-import { getUserProjects as getProjects, createProject } from '../../api/projectApi.js';
-import { getUserTags, createTag } from '../../api/tagApi.js';
+import { getUserProjects as getProjects, createProject, deleteProject } from '../../api/projectApi.js';
+import { getUserTags, createTag, deleteTag } from '../../api/tagApi.js';
 import { getUserNotes, createNote, deleteNote } from '../../api/noteApi.js';
 import { getUserPlans, createPlan, deletePlan } from '../../api/planApi.js';
 import { getCurrentUser } from '../../api/userApi.js';
@@ -238,6 +238,26 @@ function Dashboard() {
     }
   };
 
+  const handleDeleteProject = async (projectId) => {
+    try {
+      setProjects((prev) => prev.filter((project) => project.id !== projectId));
+      await deleteProject(projectId);
+    } catch (error) {
+      console.error(getApiErrorMessage(error));
+      fetchDashboardData();
+    }
+  };
+
+  const handleDeleteTag = async (tagId) => {
+    try {
+      setTags((prev) => prev.filter((tag) => tag.id !== tagId));
+      await deleteTag(tagId);
+    } catch (error) {
+      console.error(getApiErrorMessage(error));
+      fetchDashboardData();
+    }
+  };
+
   const handleDeleteNote = async (noteId) => {
     try {
       setNotes((prev) => prev.filter((note) => note.id !== noteId));
@@ -291,28 +311,30 @@ function Dashboard() {
             ))}
           </nav>
           <div className="rounded-2xl border border-slate-700 bg-slate-800 p-4 shadow-sm">
-            <div className="mb-2 flex items-center justify-between">
-              <span className="text-xs font-semibold uppercase tracking-[0.18em] text-white">Projects</span>
-              <button onClick={() => setIsProjectModalOpen(true)} className="rounded-lg p-1 text-white hover:bg-slate-700" aria-label="Add project"><Plus size={16} /></button>
+            <div className="mb-3 flex items-center justify-between">
+              <div><span className="text-xs font-semibold uppercase tracking-[0.18em] text-white">Projects</span><span className="ml-2 text-xs text-slate-400">{projects.length}</span></div>
+              <div className="flex items-center gap-1"><button onClick={() => navigate('/app/projects')} className="rounded-lg p-1 text-slate-300 hover:bg-slate-700 hover:text-white" aria-label="View all projects" title="View all projects"><ArrowRight size={15} /></button><button onClick={() => setIsProjectModalOpen(true)} className="rounded-lg p-1 text-white hover:bg-slate-700" aria-label="Add project" title="Add project"><Plus size={16} /></button></div>
             </div>
-            <div className="flex flex-wrap gap-2">
+            <div className="grid gap-2 sm:grid-cols-2">
               {projects.slice(0, 8).map((project) => (
-                <button key={project.id} onClick={() => navigate(`/app/projects/${project.id}`)} className="max-w-full truncate rounded-full px-3 py-1.5 text-xs font-medium text-white shadow-sm transition hover:opacity-85" style={{ backgroundColor: project.color || '#818cf8' }} title={project.name}>
-                  {project.name}
-                </button>
+                <div key={project.id} className="flex min-w-0 items-center gap-1 rounded-xl bg-white/10 p-1">
+                  <button onClick={() => navigate(`/app/projects/${project.id}`)} className="min-w-0 flex-1 truncate rounded-lg px-2 py-1 text-left text-xs font-medium text-white hover:bg-white/10" title={project.name}>{project.name}</button>
+                  <button onClick={() => handleDeleteProject(project.id)} className="rounded-md p-1 text-slate-300 hover:bg-rose-500/20 hover:text-rose-300" aria-label={`Delete project ${project.name}`} title="Delete project"><Trash2 size={13} /></button>
+                </div>
               ))}
             </div>
           </div>
           <div className="rounded-2xl border border-slate-700 bg-slate-800 p-4 shadow-sm">
-            <div className="mb-2 flex items-center justify-between">
-              <span className="text-xs font-semibold uppercase tracking-[0.18em] text-white">Tags</span>
-              <button onClick={() => setIsTagModalOpen(true)} className="rounded-lg p-1 text-white hover:bg-slate-700" aria-label="Add tag"><Plus size={16} /></button>
+            <div className="mb-3 flex items-center justify-between">
+              <div><span className="text-xs font-semibold uppercase tracking-[0.18em] text-white">Tags</span><span className="ml-2 text-xs text-slate-400">{tags.length}</span></div>
+              <div className="flex items-center gap-1"><button onClick={() => navigate('/app/tags')} className="rounded-lg p-1 text-slate-300 hover:bg-slate-700 hover:text-white" aria-label="View all tags" title="View all tags"><ArrowRight size={15} /></button><button onClick={() => setIsTagModalOpen(true)} className="rounded-lg p-1 text-white hover:bg-slate-700" aria-label="Add tag" title="Add tag"><Plus size={16} /></button></div>
             </div>
-            <div className="flex flex-wrap gap-2">
+            <div className="grid gap-2 sm:grid-cols-2">
               {tags.slice(0, 8).map((tag) => (
-                <span key={tag.id} className="max-w-full truncate rounded-full px-3 py-1.5 text-xs font-medium text-white shadow-sm" style={{ backgroundColor: tag.color || '#8b5cf6' }} title={tag.name}>
-                  {tag.name}
-                </span>
+                <div key={tag.id} className="flex min-w-0 items-center gap-1 rounded-xl bg-white/10 p-1">
+                  <span className="min-w-0 flex-1 truncate rounded-lg px-2 py-1 text-xs font-medium text-white" style={{ backgroundColor: tag.color || '#8b5cf6' }} title={tag.name}>{tag.name}</span>
+                  <button onClick={() => handleDeleteTag(tag.id)} className="rounded-md p-1 text-slate-300 hover:bg-rose-500/20 hover:text-rose-300" aria-label={`Delete tag ${tag.name}`} title="Delete tag"><Trash2 size={13} /></button>
+                </div>
               ))}
             </div>
           </div>
@@ -349,28 +371,30 @@ function Dashboard() {
 
           <div className="mt-7 rounded-2xl bg-slate-800 p-4">
             <div className="mb-3 flex items-center justify-between">
-              <span className="text-xs font-semibold uppercase tracking-[0.18em] text-white">Projects</span>
-              <button onClick={() => setIsProjectModalOpen(true)} className="rounded-lg p-1 text-white hover:bg-slate-700"><Plus size={16} /></button>
+              <div><span className="text-xs font-semibold uppercase tracking-[0.18em] text-white">Projects</span><span className="ml-2 text-xs text-slate-400">{projects.length}</span></div>
+              <div className="flex items-center gap-1"><button onClick={() => navigate('/app/projects')} className="rounded-lg p-1 text-slate-300 hover:bg-slate-700 hover:text-white" aria-label="View all projects" title="View all projects"><ArrowRight size={15} /></button><button onClick={() => setIsProjectModalOpen(true)} className="rounded-lg p-1 text-white hover:bg-slate-700" aria-label="Add project" title="Add project"><Plus size={16} /></button></div>
             </div>
-            <div className="flex flex-wrap gap-2">
+            <div className="grid gap-2">
               {projects.slice(0, 5).map((project) => (
-                <button key={project.id} onClick={() => navigate(`/app/projects/${project.id}`)} className="max-w-full truncate rounded-full px-3 py-1.5 text-xs font-medium text-white shadow-sm transition hover:opacity-85" style={{ backgroundColor: project.color || '#818cf8' }} title={project.name}>
-                  {project.name}
-                </button>
+                <div key={project.id} className="flex min-w-0 items-center gap-1 rounded-xl bg-white/10 p-1">
+                  <button onClick={() => navigate(`/app/projects/${project.id}`)} className="min-w-0 flex-1 truncate rounded-lg px-2 py-1 text-left text-xs font-medium text-white hover:bg-white/10" title={project.name}>{project.name}</button>
+                  <button onClick={() => handleDeleteProject(project.id)} className="rounded-md p-1 text-slate-300 hover:bg-rose-500/20 hover:text-rose-300" aria-label={`Delete project ${project.name}`} title="Delete project"><Trash2 size={13} /></button>
+                </div>
               ))}
             </div>
           </div>
 
           <div className="mt-4 rounded-2xl bg-slate-800 p-4">
             <div className="mb-3 flex items-center justify-between">
-              <span className="text-xs font-semibold uppercase tracking-[0.18em] text-white">Tags</span>
-              <button onClick={() => setIsTagModalOpen(true)} className="rounded-lg p-1 text-white hover:bg-slate-700"><Plus size={16} /></button>
+              <div><span className="text-xs font-semibold uppercase tracking-[0.18em] text-white">Tags</span><span className="ml-2 text-xs text-slate-400">{tags.length}</span></div>
+              <div className="flex items-center gap-1"><button onClick={() => navigate('/app/tags')} className="rounded-lg p-1 text-slate-300 hover:bg-slate-700 hover:text-white" aria-label="View all tags" title="View all tags"><ArrowRight size={15} /></button><button onClick={() => setIsTagModalOpen(true)} className="rounded-lg p-1 text-white hover:bg-slate-700" aria-label="Add tag" title="Add tag"><Plus size={16} /></button></div>
             </div>
-            <div className="flex flex-wrap gap-2">
+            <div className="grid gap-2">
               {tags.slice(0, 8).map((tag) => (
-                <span key={tag.id} className="max-w-full truncate rounded-full px-3 py-1.5 text-xs font-medium text-white shadow-sm" style={{ backgroundColor: tag.color || '#8b5cf6' }} title={tag.name}>
-                  {tag.name}
-                </span>
+                <div key={tag.id} className="flex min-w-0 items-center gap-1 rounded-xl bg-white/10 p-1">
+                  <span className="min-w-0 flex-1 truncate rounded-lg px-2 py-1 text-xs font-medium text-white" style={{ backgroundColor: tag.color || '#8b5cf6' }} title={tag.name}>{tag.name}</span>
+                  <button onClick={() => handleDeleteTag(tag.id)} className="rounded-md p-1 text-slate-300 hover:bg-rose-500/20 hover:text-rose-300" aria-label={`Delete tag ${tag.name}`} title="Delete tag"><Trash2 size={13} /></button>
+                </div>
               ))}
             </div>
           </div>
