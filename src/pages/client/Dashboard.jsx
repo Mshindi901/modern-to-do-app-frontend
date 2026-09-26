@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { CalendarDays, CheckCircle2, ListTodo, Star, Plus, Search, Inbox, Bell, Filter, Settings, LogOut, Trash2, ArrowRight } from 'lucide-react';
+import { CalendarDays, CheckCircle2, ListTodo, ListChecks, UsersRound, Star, Plus, Search, Inbox, Bell, Filter, Settings, LogOut, Trash2, ArrowRight } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { getUserTasks, toggleTaskComplete, toggleTaskStar, createTask, getCompletedTasks, getStarredTasks } from '../../api/taskApi.js';
@@ -8,6 +8,7 @@ import { getUserTags, createTag, deleteTag } from '../../api/tagApi.js';
 import { getUserNotes, createNote, deleteNote } from '../../api/noteApi.js';
 import { getUserPlans, createPlan, deletePlan } from '../../api/planApi.js';
 import { getCurrentUser } from '../../api/userApi.js';
+import { getSubtasksByTask, createSubtask, updateSubtask, deleteSubtask } from '../../api/subTaskApi.js';
 import { getApiErrorMessage } from '../../api/axios.js';
 import Button from '../../components/ui/Button.jsx';
 
@@ -28,6 +29,11 @@ function Dashboard() {
   const [plans, setPlans] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
   const [selectedTask, setSelectedTask] = useState(null);
+  const [subtasks, setSubtasks] = useState([]);
+  const [subtasksTaskId, setSubtasksTaskId] = useState(null);
+  const [subtaskTitle, setSubtaskTitle] = useState('');
+  const [subtaskError, setSubtaskError] = useState('');
+  const [savingSubtask, setSavingSubtask] = useState(false);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [isAddOpen, setIsAddOpen] = useState(false);
@@ -50,6 +56,8 @@ function Dashboard() {
     if (path.includes('/tasks')) return 'inbox';
     return 'inbox';
   }, [location.pathname]);
+  const selectedTaskId = selectedTask?.id;
+  const visibleSubtasks = subtasksTaskId === selectedTaskId ? subtasks : [];
 
   const viewTitle = {
     inbox: 'Inbox',
@@ -104,6 +112,29 @@ function Dashboard() {
   useEffect(() => {
     fetchDashboardData();
   }, [currentView]);
+
+  useEffect(() => {
+    let active = true;
+    if (!selectedTaskId) return undefined;
+
+    getSubtasksByTask(selectedTaskId)
+      .then((response) => {
+        if (active) {
+          setSubtasks(Array.isArray(response?.data?.data) ? response.data.data : []);
+          setSubtasksTaskId(selectedTaskId);
+          setSubtaskError('');
+        }
+      })
+      .catch((error) => {
+        if (active) {
+          setSubtasks([]);
+          setSubtasksTaskId(selectedTaskId);
+          setSubtaskError(error?.response?.status === 404 ? '' : getApiErrorMessage(error));
+        }
+      });
+
+    return () => { active = false; };
+  }, [selectedTaskId]);
 
   const visibleTasks = useMemo(() => {
     let records = [...tasks];
@@ -238,6 +269,46 @@ function Dashboard() {
     }
   };
 
+  const handleAddSubtask = async (e) => {
+    e.preventDefault();
+    const title = subtaskTitle.trim();
+    if (!selectedTask || !title) return;
+    setSavingSubtask(true);
+    setSubtaskError('');
+    try {
+      await createSubtask({ task_id: selectedTask.id, title, is_completed: false });
+      const response = await getSubtasksByTask(selectedTask.id);
+      setSubtasks(Array.isArray(response?.data?.data) ? response.data.data : []);
+      setSubtasksTaskId(selectedTask.id);
+      setSubtaskTitle('');
+    } catch (error) {
+      setSubtaskError(getApiErrorMessage(error));
+    } finally {
+      setSavingSubtask(false);
+    }
+  };
+
+  const handleSubtaskToggle = async (subtask, isCompleted) => {
+    setSubtasks((previous) => previous.map((item) => item.id === subtask.id ? { ...item, is_completed: isCompleted } : item));
+    try {
+      await updateSubtask(subtask.id, { task_id: subtask.task_id, title: subtask.title, is_completed: isCompleted });
+    } catch (error) {
+      setSubtaskError(getApiErrorMessage(error));
+      setSubtasks((previous) => previous.map((item) => item.id === subtask.id ? { ...item, is_completed: subtask.is_completed } : item));
+    }
+  };
+
+  const handleDeleteSubtask = async (subtaskId) => {
+    const previous = subtasks;
+    setSubtasks((items) => items.filter((item) => item.id !== subtaskId));
+    try {
+      await deleteSubtask(subtaskId);
+    } catch (error) {
+      setSubtasks(previous);
+      setSubtaskError(getApiErrorMessage(error));
+    }
+  };
+
   const handleDeleteProject = async (projectId) => {
     try {
       setProjects((prev) => prev.filter((project) => project.id !== projectId));
@@ -291,7 +362,10 @@ function Dashboard() {
               <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-indigo-500 font-bold text-white">T</div>
               <span className="font-semibold text-slate-800">The lazy</span>
             </div>
-            <button onClick={logout} className="rounded-xl p-2 text-slate-500 hover:bg-slate-100" aria-label="Log out"><LogOut size={17} /></button>
+            <div className="flex items-center gap-1">
+              <button onClick={() => navigate('/app/teams')} className="rounded-xl p-2 text-slate-500 hover:bg-slate-100" aria-label="Open team spaces" title="Team spaces"><UsersRound size={17} /></button>
+              <button onClick={logout} className="rounded-xl p-2 text-slate-500 hover:bg-slate-100" aria-label="Log out"><LogOut size={17} /></button>
+            </div>
           </div>
           <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white/90 px-3 py-2 shadow-sm">
             <Search size={15} className="text-slate-400" />
@@ -368,6 +442,10 @@ function Dashboard() {
               </button>
             ))}
           </nav>
+
+          <button onClick={() => navigate('/app/teams')} className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-left text-sm font-medium text-slate-700 hover:bg-slate-50">
+            <UsersRound size={16} className="text-emerald-800" /> Team spaces <ArrowRight size={14} className="ml-auto text-slate-400" />
+          </button>
 
           <div className="mt-7 rounded-2xl bg-slate-800 p-4">
             <div className="mb-3 flex items-center justify-between">
@@ -510,6 +588,30 @@ function Dashboard() {
                   <div className="mb-1 text-xs uppercase tracking-wide text-slate-400">Description</div>
                   <p>{selectedTask.context || 'No description provided.'}</p>
                 </div>
+                <section className="rounded-xl border border-slate-200 bg-white p-3" aria-label="Sub-tasks">
+                  <div className="mb-3 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <ListChecks size={16} className="text-indigo-600" />
+                      <h4 className="text-sm font-semibold text-slate-800">Sub-tasks</h4>
+                    </div>
+                    <span className="text-xs text-slate-500">{visibleSubtasks.filter((item) => item.is_completed).length}/{visibleSubtasks.length}</span>
+                  </div>
+                  <form onSubmit={handleAddSubtask} className="mb-3 flex gap-2">
+                    <input value={subtaskTitle} onChange={(e) => setSubtaskTitle(e.target.value)} placeholder="Add a step" aria-label="Sub-task title" className="min-w-0 flex-1 rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-400" maxLength={255} />
+                    <button type="submit" disabled={!subtaskTitle.trim() || savingSubtask} className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-indigo-600 text-white hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-50" aria-label="Add sub-task" title="Add sub-task"><Plus size={16} /></button>
+                  </form>
+                  {subtaskError && <p role="alert" className="mb-2 text-xs text-rose-600">{subtaskError}</p>}
+                  <div className="space-y-1">
+                    {visibleSubtasks.map((subtask) => (
+                      <div key={subtask.id} className="group flex items-center gap-2 rounded-lg px-1 py-1.5 hover:bg-slate-50">
+                        <input type="checkbox" checked={Boolean(subtask.is_completed)} onChange={(e) => handleSubtaskToggle(subtask, e.target.checked)} className="h-4 w-4 shrink-0 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" aria-label={`Mark ${subtask.title} ${subtask.is_completed ? 'incomplete' : 'complete'}`} />
+                        <span className={`min-w-0 flex-1 wrap-break-word text-sm ${subtask.is_completed ? 'text-slate-400 line-through' : 'text-slate-700'}`}>{subtask.title}</span>
+                        <button type="button" onClick={() => handleDeleteSubtask(subtask.id)} className="rounded-md p-1 text-slate-400 hover:bg-rose-50 hover:text-rose-600" aria-label={`Delete sub-task ${subtask.title}`} title="Delete sub-task"><Trash2 size={14} /></button>
+                      </div>
+                    ))}
+                    {visibleSubtasks.length === 0 && !subtaskError && <p className="py-2 text-xs text-slate-400">Break this task into smaller steps.</p>}
+                  </div>
+                </section>
                 <div className="rounded-xl bg-slate-50 p-3">
                   <div className="mb-2 flex items-center justify-between">
                     <div className="text-xs uppercase tracking-wide text-slate-400">Notes</div>
