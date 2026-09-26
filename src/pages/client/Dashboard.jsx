@@ -366,7 +366,7 @@ function Dashboard() {
               <span className="font-semibold text-slate-800">The lazy</span>
             </div>
             <div className="flex items-center gap-1">
-              <button onClick={() => navigate('/app/teams')} className="rounded-xl p-2 text-slate-500 hover:bg-slate-100" aria-label="Open team spaces" title="Team spaces"><UsersRound size={17} /></button>
+              <button onClick={() => navigate('/app/teams')} className="rounded-xl bg-[#6242c7] p-2 text-[#e4ed59] hover:bg-[#5032ae]" aria-label="Open team spaces" title="Team spaces"><UsersRound size={17} /></button>
               <button onClick={logout} className="rounded-xl p-2 text-slate-500 hover:bg-slate-100" aria-label="Log out"><LogOut size={17} /></button>
             </div>
           </div>
@@ -387,30 +387,33 @@ function Dashboard() {
               </button>
             ))}
           </nav>
-          <div className="rounded-2xl border border-slate-700 bg-slate-800 p-4 shadow-sm">
+          <button onClick={() => navigate('/app/teams')} className="flex items-center gap-2 rounded-xl bg-[#6242c7] px-3 py-2.5 text-left text-sm font-semibold text-[#e4ed59] shadow-sm hover:bg-[#5032ae]">
+            <UsersRound size={16} /> Team spaces <ArrowRight size={14} className="ml-auto" />
+          </button>
+          <div className="rounded-2xl border border-violet-100 bg-white p-4 shadow-sm">
             <div className="mb-3 flex items-center justify-between">
-              <div><span className="text-xs font-semibold uppercase tracking-[0.18em] text-white">Projects</span><span className="ml-2 text-xs text-slate-400">{projects.length}</span></div>
-              <div className="flex items-center gap-1"><button onClick={() => navigate('/app/projects')} className="rounded-lg p-1 text-slate-300 hover:bg-slate-700 hover:text-white" aria-label="View all projects" title="View all projects"><ArrowRight size={15} /></button><button onClick={() => setIsProjectModalOpen(true)} className="rounded-lg p-1 text-white hover:bg-slate-700" aria-label="Add project" title="Add project"><Plus size={16} /></button></div>
+              <div><span className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-800">Projects</span><span className="ml-2 text-xs text-slate-500">{projects.length}</span></div>
+              <div className="flex items-center gap-1"><button onClick={() => navigate('/app/projects')} className="rounded-lg p-1 text-violet-700 hover:bg-violet-50" aria-label="View all projects" title="View all projects"><ArrowRight size={15} /></button><button onClick={() => setIsProjectModalOpen(true)} className="rounded-lg p-1 text-violet-700 hover:bg-violet-50" aria-label="Add project" title="Add project"><Plus size={16} /></button></div>
             </div>
             <div className="grid gap-2 sm:grid-cols-2">
               {projects.slice(0, 8).map((project) => (
-                <div key={project.id} className="flex min-w-0 items-center gap-1 rounded-xl bg-white/10 p-1">
-                  <button onClick={() => navigate(`/app/projects/${project.id}`)} className="min-w-0 flex-1 truncate rounded-lg px-2 py-1 text-left text-xs font-medium text-white hover:bg-white/10" title={project.name}>{project.name}</button>
-                  <button onClick={() => handleDeleteProject(project.id)} className="rounded-md p-1 text-slate-300 hover:bg-rose-500/20 hover:text-rose-300" aria-label={`Delete project ${project.name}`} title="Delete project"><Trash2 size={13} /></button>
+                <div key={project.id} className="flex min-w-0 items-center gap-1 rounded-lg bg-violet-50/70 p-1">
+                  <button onClick={() => navigate(`/app/projects/${project.id}`)} className="flex min-w-0 flex-1 items-center gap-2 truncate rounded-md px-2 py-1.5 text-left text-xs font-medium text-slate-700 hover:bg-white" title={project.name}><span className="h-2 w-2 shrink-0 rounded-sm" style={{ backgroundColor: project.color || '#6242c7' }} />{project.name}</button>
+                  <button onClick={() => handleDeleteProject(project.id)} className="rounded-md p-1 text-slate-400 hover:bg-rose-50 hover:text-rose-600" aria-label={`Delete project ${project.name}`} title="Delete project"><Trash2 size={13} /></button>
                 </div>
               ))}
             </div>
           </div>
-          <div className="rounded-2xl border border-slate-700 bg-slate-800 p-4 shadow-sm">
+          <div className="rounded-2xl border border-violet-100 bg-white p-4 shadow-sm">
             <div className="mb-3 flex items-center justify-between">
-              <div><span className="text-xs font-semibold uppercase tracking-[0.18em] text-white">Tags</span><span className="ml-2 text-xs text-slate-400">{tags.length}</span></div>
-              <div className="flex items-center gap-1"><button onClick={() => navigate('/app/tags')} className="rounded-lg p-1 text-slate-300 hover:bg-slate-700 hover:text-white" aria-label="View all tags" title="View all tags"><ArrowRight size={15} /></button><button onClick={() => setIsTagModalOpen(true)} className="rounded-lg p-1 text-white hover:bg-slate-700" aria-label="Add tag" title="Add tag"><Plus size={16} /></button></div>
+              <div><span className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-800">Tags</span><span className="ml-2 text-xs text-slate-500">{tags.length}</span></div>
+              <div className="flex items-center gap-1"><button onClick={() => navigate('/app/tags')} className="rounded-lg p-1 text-violet-700 hover:bg-violet-50" aria-label="View all tags" title="View all tags"><ArrowRight size={15} /></button><button onClick={() => setIsTagModalOpen(true)} className="rounded-lg p-1 text-violet-700 hover:bg-violet-50" aria-label="Add tag" title="Add tag"><Plus size={16} /></button></div>
             </div>
             <div className="grid gap-2 sm:grid-cols-2">
               {tags.slice(0, 8).map((tag) => (
-                <div key={tag.id} className="flex min-w-0 items-center gap-1 rounded-xl bg-white/10 p-1">
-                  <span className="min-w-0 flex-1 truncate rounded-lg px-2 py-1 text-xs font-medium text-white" style={{ backgroundColor: tag.color || '#8b5cf6' }} title={tag.name}>{tag.name}</span>
-                  <button onClick={() => handleDeleteTag(tag.id)} className="rounded-md p-1 text-slate-300 hover:bg-rose-500/20 hover:text-rose-300" aria-label={`Delete tag ${tag.name}`} title="Delete tag"><Trash2 size={13} /></button>
+                <div key={tag.id} className="flex min-w-0 items-center gap-1 rounded-lg bg-violet-50/70 p-1">
+                  <span className="min-w-0 flex-1 truncate rounded-md px-2 py-1.5 text-xs font-medium text-slate-700" title={tag.name}><span className="mr-1.5 inline-block h-2 w-2 rounded-full align-middle" style={{ backgroundColor: tag.color || '#6242c7' }} />{tag.name}</span>
+                  <button onClick={() => handleDeleteTag(tag.id)} className="rounded-md p-1 text-slate-400 hover:bg-rose-50 hover:text-rose-600" aria-label={`Delete tag ${tag.name}`} title="Delete tag"><Trash2 size={13} /></button>
                 </div>
               ))}
             </div>
@@ -446,35 +449,35 @@ function Dashboard() {
             ))}
           </nav>
 
-          <button onClick={() => navigate('/app/teams')} className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-left text-sm font-medium text-slate-700 hover:bg-slate-50">
-            <UsersRound size={16} className="text-emerald-800" /> Team spaces <ArrowRight size={14} className="ml-auto text-slate-400" />
+          <button onClick={() => navigate('/app/teams')} className="mt-3 flex items-center gap-3 rounded-xl bg-[#6242c7] px-3 py-2.5 text-left text-sm font-semibold text-[#e4ed59] shadow-sm transition hover:bg-[#5032ae]">
+            <UsersRound size={16} /> Team spaces <ArrowRight size={14} className="ml-auto" />
           </button>
 
-          <div className="mt-7 rounded-2xl bg-slate-800 p-4">
+          <div className="mt-7 rounded-2xl border border-violet-100 bg-white p-4">
             <div className="mb-3 flex items-center justify-between">
-              <div><span className="text-xs font-semibold uppercase tracking-[0.18em] text-white">Projects</span><span className="ml-2 text-xs text-slate-400">{projects.length}</span></div>
-              <div className="flex items-center gap-1"><button onClick={() => navigate('/app/projects')} className="rounded-lg p-1 text-slate-300 hover:bg-slate-700 hover:text-white" aria-label="View all projects" title="View all projects"><ArrowRight size={15} /></button><button onClick={() => setIsProjectModalOpen(true)} className="rounded-lg p-1 text-white hover:bg-slate-700" aria-label="Add project" title="Add project"><Plus size={16} /></button></div>
+              <div><span className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-800">Projects</span><span className="ml-2 text-xs text-slate-500">{projects.length}</span></div>
+              <div className="flex items-center gap-1"><button onClick={() => navigate('/app/projects')} className="rounded-lg p-1 text-violet-700 hover:bg-violet-50" aria-label="View all projects" title="View all projects"><ArrowRight size={15} /></button><button onClick={() => setIsProjectModalOpen(true)} className="rounded-lg p-1 text-violet-700 hover:bg-violet-50" aria-label="Add project" title="Add project"><Plus size={16} /></button></div>
             </div>
             <div className="grid gap-2">
               {projects.slice(0, 5).map((project) => (
-                <div key={project.id} className="flex min-w-0 items-center gap-1 rounded-xl bg-white/10 p-1">
-                  <button onClick={() => navigate(`/app/projects/${project.id}`)} className="min-w-0 flex-1 truncate rounded-lg px-2 py-1 text-left text-xs font-medium text-white hover:bg-white/10" title={project.name}>{project.name}</button>
-                  <button onClick={() => handleDeleteProject(project.id)} className="rounded-md p-1 text-slate-300 hover:bg-rose-500/20 hover:text-rose-300" aria-label={`Delete project ${project.name}`} title="Delete project"><Trash2 size={13} /></button>
+                <div key={project.id} className="flex min-w-0 items-center gap-1 rounded-lg bg-violet-50/70 p-1">
+                  <button onClick={() => navigate(`/app/projects/${project.id}`)} className="flex min-w-0 flex-1 items-center gap-2 truncate rounded-md px-2 py-1.5 text-left text-xs font-medium text-slate-700 hover:bg-white" title={project.name}><span className="h-2 w-2 shrink-0 rounded-sm" style={{ backgroundColor: project.color || '#6242c7' }} />{project.name}</button>
+                  <button onClick={() => handleDeleteProject(project.id)} className="rounded-md p-1 text-slate-400 hover:bg-rose-50 hover:text-rose-600" aria-label={`Delete project ${project.name}`} title="Delete project"><Trash2 size={13} /></button>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="mt-4 rounded-2xl bg-slate-800 p-4">
+          <div className="mt-4 rounded-2xl border border-violet-100 bg-white p-4">
             <div className="mb-3 flex items-center justify-between">
-              <div><span className="text-xs font-semibold uppercase tracking-[0.18em] text-white">Tags</span><span className="ml-2 text-xs text-slate-400">{tags.length}</span></div>
-              <div className="flex items-center gap-1"><button onClick={() => navigate('/app/tags')} className="rounded-lg p-1 text-slate-300 hover:bg-slate-700 hover:text-white" aria-label="View all tags" title="View all tags"><ArrowRight size={15} /></button><button onClick={() => setIsTagModalOpen(true)} className="rounded-lg p-1 text-white hover:bg-slate-700" aria-label="Add tag" title="Add tag"><Plus size={16} /></button></div>
+              <div><span className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-800">Tags</span><span className="ml-2 text-xs text-slate-500">{tags.length}</span></div>
+              <div className="flex items-center gap-1"><button onClick={() => navigate('/app/tags')} className="rounded-lg p-1 text-violet-700 hover:bg-violet-50" aria-label="View all tags" title="View all tags"><ArrowRight size={15} /></button><button onClick={() => setIsTagModalOpen(true)} className="rounded-lg p-1 text-violet-700 hover:bg-violet-50" aria-label="Add tag" title="Add tag"><Plus size={16} /></button></div>
             </div>
             <div className="grid gap-2">
               {tags.slice(0, 8).map((tag) => (
-                <div key={tag.id} className="flex min-w-0 items-center gap-1 rounded-xl bg-white/10 p-1">
-                  <span className="min-w-0 flex-1 truncate rounded-lg px-2 py-1 text-xs font-medium text-white" style={{ backgroundColor: tag.color || '#8b5cf6' }} title={tag.name}>{tag.name}</span>
-                  <button onClick={() => handleDeleteTag(tag.id)} className="rounded-md p-1 text-slate-300 hover:bg-rose-500/20 hover:text-rose-300" aria-label={`Delete tag ${tag.name}`} title="Delete tag"><Trash2 size={13} /></button>
+                <div key={tag.id} className="flex min-w-0 items-center gap-1 rounded-lg bg-violet-50/70 p-1">
+                  <span className="min-w-0 flex-1 truncate rounded-md px-2 py-1.5 text-xs font-medium text-slate-700" title={tag.name}><span className="mr-1.5 inline-block h-2 w-2 rounded-full align-middle" style={{ backgroundColor: tag.color || '#6242c7' }} />{tag.name}</span>
+                  <button onClick={() => handleDeleteTag(tag.id)} className="rounded-md p-1 text-slate-400 hover:bg-rose-50 hover:text-rose-600" aria-label={`Delete tag ${tag.name}`} title="Delete tag"><Trash2 size={13} /></button>
                 </div>
               ))}
             </div>
