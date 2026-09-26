@@ -66,6 +66,9 @@ function Dashboard() {
     completed: 'Completed',
     starred: 'Starred',
   }[currentView] || 'Inbox';
+  const currentHour = new Date().getHours();
+  const greeting = currentHour < 12 ? 'Good morning' : currentHour < 18 ? 'Good afternoon' : 'Good evening';
+  const displayName = currentUser?.name?.trim() || user?.name?.trim() || user?.email?.split('@')[0] || 'there';
 
   const fetchDashboardData = async () => {
     try {
@@ -490,8 +493,8 @@ function Dashboard() {
         <main className="min-w-0 flex-1 rounded-2xl border border-slate-200 bg-white/95 p-3 shadow-sm sm:rounded-3xl sm:p-6">
           <div className="mb-6 flex flex-col gap-4 border-b border-slate-200 pb-5 md:flex-row md:items-center md:justify-between">
             <div>
-              <p className="text-sm text-slate-500">Good morning</p>
-              <h1 className="text-3xl font-bold text-slate-800">{currentUser?.name || user?.name || 'Welcome'}</h1>
+              <p className="text-sm text-slate-500">{greeting},</p>
+              <h1 className="text-3xl font-bold text-slate-800">{displayName}</h1>
             </div>
 
             <div className="flex flex-wrap items-center gap-2 sm:gap-3">
