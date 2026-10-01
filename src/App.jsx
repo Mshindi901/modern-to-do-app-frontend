@@ -8,6 +8,7 @@ import ProjectDetails from './pages/client/ProjectDetails.jsx';
 import Tags from './pages/client/Tags.jsx';
 import Profile from './pages/client/Profile.jsx';
 import TeamDashboard from './pages/client/TeamDashboard.jsx';
+import Notifications from './pages/client/Notifications.jsx';
 import AdminDashboard from './pages/admin/AdminDashboard.jsx';
 import AdminUsers from './pages/admin/AdminUsers.jsx';
 import AdminVisitors from './pages/admin/AdminVisitors.jsx';
@@ -47,6 +48,7 @@ function App() {
         <Route path="/app/projects/:id" element={<ProtectedRoute><ProjectDetails /></ProtectedRoute>} />
         <Route path="/app/tags" element={<ProtectedRoute><Tags /></ProtectedRoute>} />
         <Route path="/app/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+        <Route path="/app/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
         <Route path="/app/teams" element={<ProtectedRoute><TeamDashboard /></ProtectedRoute>} />
         <Route path="/app/teams/:id" element={<ProtectedRoute><TeamDashboard /></ProtectedRoute>} />
 

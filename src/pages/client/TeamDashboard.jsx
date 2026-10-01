@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Building2, CalendarDays, Check, ChevronDown, CirclePlus, LogOut, Mail, Pencil, Plus, ShieldCheck, Users, X } from 'lucide-react';
+import { ArrowLeft, Bell, Building2, CalendarDays, Check, ChevronDown, CirclePlus, LogOut, Mail, Pencil, Plus, ShieldCheck, Users, X } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { addTeamMember, createTeam, getOwnedTeams, getTeam, getTeamMembers, getUserTeamMemberships, removeTeamMember, updateTeam, updateTeamMember } from '../../api/teamApi.js';
 import { findUserByEmail } from '../../api/userApi.js';
@@ -211,7 +211,10 @@ export default function TeamDashboard() {
             <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#e4ed59] text-[#302060]"><Building2 size={20} /></span>
             <span><span className="block text-sm font-semibold">Team spaces</span><span className="block text-xs text-violet-100/65">The lazy / workspace</span></span>
           </button>
-          <button onClick={() => navigate('/app')} className="rounded-lg p-2 text-violet-100/70 hover:bg-white/10 hover:text-white" title="Back to personal tasks" aria-label="Back to personal tasks"><ArrowLeft size={18} /></button>
+          <div className="flex items-center gap-1">
+            <button onClick={() => navigate('/app/notifications')} className="rounded-lg p-2 text-violet-100/70 hover:bg-white/10 hover:text-white" title="Notifications" aria-label="Notifications"><Bell size={18} /></button>
+            <button onClick={() => navigate('/app')} className="rounded-lg p-2 text-violet-100/70 hover:bg-white/10 hover:text-white" title="Back to personal tasks" aria-label="Back to personal tasks"><ArrowLeft size={18} /></button>
+          </div>
         </div>
 
         <div className="flex items-center justify-between px-5 pb-2 pt-6">

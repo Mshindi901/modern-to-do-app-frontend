@@ -501,7 +501,7 @@ function Dashboard() {
             </div>
 
             <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-              <button className="rounded-xl border border-slate-200 bg-slate-50 p-2.5 text-slate-600 hover:bg-slate-100"><Bell size={18} /></button>
+              <button onClick={() => navigate('/app/notifications')} className="rounded-xl border border-slate-200 bg-slate-50 p-2.5 text-slate-600 hover:bg-slate-100" aria-label="Notifications" title="Notifications"><Bell size={18} /></button>
               <Button onClick={() => setIsAddOpen(true)} className="gap-2 rounded-xl">
                 <Plus size={16} /> Add task
               </Button>
