@@ -5,6 +5,7 @@ import { useAuth } from '../../context/AuthContext.jsx';
 import { addTeamMember, createTeam, getOwnedTeams, getTeam, getTeamMembers, getUserTeamMemberships, removeTeamMember, updateTeam, updateTeamMember } from '../../api/teamApi.js';
 import { findUserByEmail } from '../../api/userApi.js';
 import { getApiErrorMessage } from '../../api/axios.js';
+import TeamWorkspace from './TeamWorkspace.jsx';
 
 const emptyTeamForm = { name: '', description: '' };
 
@@ -268,12 +269,14 @@ export default function TeamDashboard() {
 
               <div className="mb-5 flex items-center justify-between border-b border-slate-200">
                 <div className="flex gap-5" role="tablist" aria-label="Team sections">
-                  {['overview', 'members'].map((tab) => <button key={tab} role="tab" aria-selected={activeTab === tab} onClick={() => setActiveTab(tab)} className={`border-b-2 px-1 pb-3 text-sm font-medium capitalize ${activeTab === tab ? 'border-[#6242c7] text-[#5032ae]' : 'border-transparent text-slate-500 hover:text-slate-800'}`}>{tab}</button>)}
+                  {['overview', 'workspace', 'members'].map((tab) => <button key={tab} role="tab" aria-selected={activeTab === tab} onClick={() => setActiveTab(tab)} className={`border-b-2 px-1 pb-3 text-sm font-medium capitalize ${activeTab === tab ? 'border-[#6242c7] text-[#5032ae]' : 'border-transparent text-slate-500 hover:text-slate-800'}`}>{tab}</button>)}
                 </div>
                 {!isOwner && currentMembership && currentMembership.role !== 'owner' && <button onClick={() => setPendingRemoval(currentMembership)} className="mb-2 text-xs font-medium text-rose-700 hover:text-rose-900">Leave team</button>}
               </div>
 
-              {activeTab === 'overview' ? (
+              {activeTab === 'workspace' ? (
+                <TeamWorkspace key={activeTeam.id} team={activeTeam} onNotice={setNotice} />
+              ) : activeTab === 'overview' ? (
                 <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
                   <section>
                     <div className="mb-4 flex items-center justify-between"><div><h2 className="text-lg font-semibold">People</h2><p className="mt-1 text-sm text-slate-500">The people with access to this workspace.</p></div><button onClick={() => setActiveTab('members')} className="text-sm font-medium text-violet-800 hover:text-violet-950">View roster <span aria-hidden="true">-&gt;</span></button></div>
