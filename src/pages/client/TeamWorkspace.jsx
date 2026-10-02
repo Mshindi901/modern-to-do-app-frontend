@@ -5,7 +5,7 @@ import { createPlan } from '../../api/planApi.js';
 import { createProject } from '../../api/projectApi.js';
 import { createSubtask } from '../../api/subTaskApi.js';
 import { createTag } from '../../api/tagApi.js';
-import { createTask } from '../../api/taskApi.js';
+import { createTask, toggleTaskComplete } from '../../api/taskApi.js';
 import { getApiErrorMessage } from '../../api/axios.js';
 import { getTeamWorkspace } from '../../api/teamWorkspaceApi.js';
 
@@ -134,6 +134,22 @@ export default function TeamWorkspace({ team, onNotice }) {
     }
   };
 
+  const handleTaskCompletion = async (task, isCompleted) => {
+    setWorkspace((current) => ({
+      ...current,
+      tasks: current.tasks.map((item) => item.id === task.id ? { ...item, is_completed: isCompleted } : item),
+    }));
+    try {
+      await toggleTaskComplete(task.id, isCompleted);
+    } catch (error) {
+      setWorkspace((current) => ({
+        ...current,
+        tasks: current.tasks.map((item) => item.id === task.id ? { ...item, is_completed: task.is_completed } : item),
+      }));
+      onNotice({ type: 'error', message: getApiErrorMessage(error) });
+    }
+  };
+
   const records = workspace[resource] || [];
   const taskRequired = ['subtasks', 'notes', 'plans'].includes(resource);
   const titleOnly = ['tasks', 'subtasks', 'notes', 'plans'].includes(resource);
@@ -165,11 +181,12 @@ export default function TeamWorkspace({ team, onNotice }) {
           {resource === 'tasks' ? (
             <article className="flex min-w-0 items-start gap-3 px-3 py-4 sm:px-4">
               <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-violet-50 text-violet-700"><CircleDot size={15} /></span>
+              <input type="checkbox" checked={Boolean(task.is_completed)} onChange={(event) => handleTaskCompletion(task, event.target.checked)} className="mt-1 h-4 w-4 shrink-0 rounded border-slate-300 text-violet-600 focus:ring-violet-500" aria-label={`Mark ${task.title} ${task.is_completed ? 'incomplete' : 'complete'}`} />
               <div className="min-w-0 flex-1">
-                <h4 className="wrap-break-word text-sm font-medium text-slate-900">{getRecordTitle('tasks', task)}</h4>
+                <h4 className={`wrap-break-word text-sm font-medium ${task.is_completed ? 'text-slate-400 line-through' : 'text-slate-900'}`}>{getRecordTitle('tasks', task)}</h4>
                 <p className="mt-1 wrap-break-word text-xs leading-5 text-slate-500">{getRecordDescription('tasks', task)}</p>
               </div>
-              <span className="shrink-0 rounded bg-slate-100 px-2 py-1 text-[11px] capitalize text-slate-600">{task.is_completed ? 'done' : task.priority || 'low'}</span>
+              <span className={`shrink-0 rounded px-2 py-1 text-[11px] capitalize ${task.is_completed ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-600'}`}>{task.is_completed ? 'done' : task.priority || 'low'}</span>
             </article>
           ) : <h4 className="px-3 pt-3 text-xs font-semibold text-slate-700 sm:px-4">{task.title || 'Untitled task'}</h4>}
           {children.length > 0 && <div className="ml-11 space-y-1 px-3 pb-3 sm:ml-14 sm:px-4">{children.map(({ linkedResource, record }) => renderLinkedRecord(linkedResource, record))}</div>}
@@ -212,13 +229,14 @@ export default function TeamWorkspace({ team, onNotice }) {
           ) : (
             linkedResources.length > 0 ? renderTaskGroups() : <div className="divide-y divide-slate-100 border-y border-slate-200 bg-white">
               {records.map((record) => {
-                const projectColor = record.color || '#6242c7';
-                const lightProjectColor = isLightColor(projectColor);
-                return <article key={record.id} style={resource === 'projects' ? { backgroundColor: projectColor, color: lightProjectColor ? '#1e293b' : '#ffffff' } : undefined} className="flex min-w-0 items-start gap-3 px-3 py-4 sm:px-4">
-                  <span className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md ${resource === 'projects' ? 'bg-white/25' : 'bg-violet-50 text-violet-700'}`}><CircleDot size={15} /></span>
+                const hasSelectedColor = resource === 'projects' || resource === 'tags';
+                const selectedColor = record.color || '#6242c7';
+                const lightSelectedColor = isLightColor(selectedColor);
+                return <article key={record.id} style={hasSelectedColor ? { backgroundColor: selectedColor, color: lightSelectedColor ? '#1e293b' : '#ffffff' } : undefined} className="flex min-w-0 items-start gap-3 px-3 py-4 sm:px-4">
+                  <span className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md ${hasSelectedColor ? 'bg-white/25' : 'bg-violet-50 text-violet-700'}`}><CircleDot size={15} /></span>
                   <div className="min-w-0 flex-1">
-                    <h4 className={`wrap-break-word text-sm font-medium ${resource === 'projects' ? '' : 'text-slate-900'}`}>{getRecordTitle(resource, record)}</h4>
-                    <p className={`mt-1 wrap-break-word text-xs leading-5 ${resource === 'projects' ? (lightProjectColor ? 'text-slate-700' : 'text-white/80') : 'text-slate-500'}`}>{getRecordDescription(resource, record)}</p>
+                    <h4 className={`wrap-break-word text-sm font-medium ${hasSelectedColor ? '' : 'text-slate-900'}`}>{getRecordTitle(resource, record)}</h4>
+                    <p className={`mt-1 wrap-break-word text-xs leading-5 ${hasSelectedColor ? (lightSelectedColor ? 'text-slate-700' : 'text-white/80') : 'text-slate-500'}`}>{getRecordDescription(resource, record)}</p>
                   </div>
                   {resource === 'tasks' && <span className="shrink-0 rounded bg-slate-100 px-2 py-1 text-[11px] capitalize text-slate-600">{record.is_completed ? 'done' : record.priority || 'low'}</span>}
                   {resource === 'subtasks' && record.is_completed && <span className="shrink-0 rounded bg-emerald-50 px-2 py-1 text-[11px] text-emerald-700">Done</span>}
