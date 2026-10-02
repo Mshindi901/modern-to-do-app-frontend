@@ -48,6 +48,16 @@ function getRecordDescription(resource, record) {
   return '';
 }
 
+function isLightColor(color) {
+  const match = /^#([0-9a-f]{6})$/i.exec(color || '');
+  if (!match) return false;
+  const value = Number.parseInt(match[1], 16);
+  const red = (value >> 16) & 255;
+  const green = (value >> 8) & 255;
+  const blue = value & 255;
+  return (red * 299 + green * 587 + blue * 114) / 1000 > 150;
+}
+
 export default function TeamWorkspace({ team, onNotice }) {
   const [resource, setResource] = useState('tasks');
   const [workspace, setWorkspace] = useState({ projects: [], tasks: [], tags: [], subtasks: [], notes: [], plans: [] });
@@ -201,17 +211,19 @@ export default function TeamWorkspace({ team, onNotice }) {
             </div>
           ) : (
             linkedResources.length > 0 ? renderTaskGroups() : <div className="divide-y divide-slate-100 border-y border-slate-200 bg-white">
-              {records.map((record) => (
-                <article key={record.id} style={resource === 'projects' ? { backgroundColor: `color-mix(in srgb, ${record.color || '#6242c7'} 12%, white)`, borderLeft: `3px solid ${record.color || '#6242c7'}` } : undefined} className="flex min-w-0 items-start gap-3 px-3 py-4 sm:px-4">
-                  <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-violet-50 text-violet-700"><CircleDot size={15} /></span>
+              {records.map((record) => {
+                const projectColor = record.color || '#6242c7';
+                const lightProjectColor = isLightColor(projectColor);
+                return <article key={record.id} style={resource === 'projects' ? { backgroundColor: projectColor, color: lightProjectColor ? '#1e293b' : '#ffffff' } : undefined} className="flex min-w-0 items-start gap-3 px-3 py-4 sm:px-4">
+                  <span className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md ${resource === 'projects' ? 'bg-white/25' : 'bg-violet-50 text-violet-700'}`}><CircleDot size={15} /></span>
                   <div className="min-w-0 flex-1">
-                    <h4 className="wrap-break-word text-sm font-medium text-slate-900">{getRecordTitle(resource, record)}</h4>
-                    <p className="mt-1 wrap-break-word text-xs leading-5 text-slate-500">{getRecordDescription(resource, record)}</p>
+                    <h4 className={`wrap-break-word text-sm font-medium ${resource === 'projects' ? '' : 'text-slate-900'}`}>{getRecordTitle(resource, record)}</h4>
+                    <p className={`mt-1 wrap-break-word text-xs leading-5 ${resource === 'projects' ? (lightProjectColor ? 'text-slate-700' : 'text-white/80') : 'text-slate-500'}`}>{getRecordDescription(resource, record)}</p>
                   </div>
                   {resource === 'tasks' && <span className="shrink-0 rounded bg-slate-100 px-2 py-1 text-[11px] capitalize text-slate-600">{record.is_completed ? 'done' : record.priority || 'low'}</span>}
                   {resource === 'subtasks' && record.is_completed && <span className="shrink-0 rounded bg-emerald-50 px-2 py-1 text-[11px] text-emerald-700">Done</span>}
-                </article>
-              ))}
+                </article>;
+              })}
             </div>
           )}
         </div>
