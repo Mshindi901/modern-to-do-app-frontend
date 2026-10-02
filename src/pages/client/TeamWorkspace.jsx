@@ -38,13 +38,13 @@ function getRecordTitle(resource, record) {
   return record.title || 'Untitled';
 }
 
-function getRecordDescription(resource, record, tasks) {
+function getRecordDescription(resource, record) {
   if (resource === 'tasks') return record.context || `Priority: ${record.priority || 'low'}`;
   if (resource === 'projects') return `Project · ${record.createdAt ? new Date(record.createdAt).toLocaleDateString() : 'In progress'}`;
   if (resource === 'tags') return 'Workspace tag';
-  if (resource === 'subtasks') return tasks.find((task) => task.id === record.task_id)?.title || 'Task';
-  if (resource === 'notes') return [record.context, tasks.find((task) => task.id === record.task_id)?.title].filter(Boolean).join(' · ') || 'Workspace note';
-  if (resource === 'plans') return [record.date, record.start_at && record.end_at ? `${record.start_at}–${record.end_at}` : ''].filter(Boolean).join(' · ');
+  if (resource === 'subtasks') return record.is_completed ? 'Completed sub-task' : 'Sub-task';
+  if (resource === 'notes') return record.context || 'Note';
+  if (resource === 'plans') return [record.description, record.date, record.start_at && record.end_at ? `${record.start_at}–${record.end_at}` : ''].filter(Boolean).join(' · ') || 'Plan';
   return '';
 }
 
@@ -127,6 +127,50 @@ export default function TeamWorkspace({ team, onNotice }) {
   const records = workspace[resource] || [];
   const taskRequired = ['subtasks', 'notes', 'plans'].includes(resource);
   const titleOnly = ['tasks', 'subtasks', 'notes', 'plans'].includes(resource);
+  const linkedResources = resource === 'tasks' ? ['subtasks', 'notes', 'plans'] : taskRequired ? [resource] : [];
+
+  const renderLinkedRecord = (linkedResource, record) => (
+    <div key={`${linkedResource}-${record.id}`} className="flex min-w-0 items-start gap-2 border-l-2 border-slate-200 bg-slate-50/70 px-3 py-2 text-slate-600">
+      <span className="mt-0.5 shrink-0 text-slate-400">{linkedResource === 'subtasks' ? <ListTodo size={14} /> : linkedResource === 'notes' ? <FileText size={14} /> : <CalendarDays size={14} />}</span>
+      <div className="min-w-0 flex-1">
+        <h5 className={`wrap-break-word text-xs font-medium ${linkedResource === 'subtasks' && record.is_completed ? 'text-slate-400 line-through' : 'text-slate-700'}`}>{getRecordTitle(linkedResource, record)}</h5>
+        <p className="mt-0.5 wrap-break-word text-[11px] leading-4 text-slate-500">{getRecordDescription(linkedResource, record)}</p>
+      </div>
+      {linkedResource === 'subtasks' && record.is_completed && <span className="shrink-0 text-[10px] text-slate-500">Done</span>}
+    </div>
+  );
+
+  const renderTaskGroups = () => {
+    const linkedRecords = linkedResources.flatMap((linkedResource) => workspace[linkedResource].map((record) => ({ linkedResource, record })));
+    const taskIds = new Set(workspace.tasks.map((task) => String(task.id)));
+    const groups = workspace.tasks.map((task) => ({
+      task,
+      children: linkedRecords.filter(({ record }) => String(record.task_id) === String(task.id)),
+    })).filter(({ children }) => resource === 'tasks' || children.length > 0);
+    const unlinked = linkedRecords.filter(({ record }) => !taskIds.has(String(record.task_id)));
+
+    return <div className="divide-y divide-slate-100 border-y border-slate-200 bg-white">
+      {groups.map(({ task, children }) => (
+        <section key={task.id}>
+          {resource === 'tasks' ? (
+            <article className="flex min-w-0 items-start gap-3 px-3 py-4 sm:px-4">
+              <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-violet-50 text-violet-700"><CircleDot size={15} /></span>
+              <div className="min-w-0 flex-1">
+                <h4 className="wrap-break-word text-sm font-medium text-slate-900">{getRecordTitle('tasks', task)}</h4>
+                <p className="mt-1 wrap-break-word text-xs leading-5 text-slate-500">{getRecordDescription('tasks', task)}</p>
+              </div>
+              <span className="shrink-0 rounded bg-slate-100 px-2 py-1 text-[11px] capitalize text-slate-600">{task.is_completed ? 'done' : task.priority || 'low'}</span>
+            </article>
+          ) : <h4 className="px-3 pt-3 text-xs font-semibold text-slate-700 sm:px-4">{task.title || 'Untitled task'}</h4>}
+          {children.length > 0 && <div className="ml-11 space-y-1 px-3 pb-3 sm:ml-14 sm:px-4">{children.map(({ linkedResource, record }) => renderLinkedRecord(linkedResource, record))}</div>}
+        </section>
+      ))}
+      {unlinked.length > 0 && <section>
+        <h4 className="px-3 pt-3 text-xs font-semibold text-slate-500 sm:px-4">Task unavailable</h4>
+        <div className="ml-11 space-y-1 px-3 pb-3 sm:ml-14 sm:px-4">{unlinked.map(({ linkedResource, record }) => renderLinkedRecord(linkedResource, record))}</div>
+      </section>}
+    </div>;
+  };
 
   return (
     <section>
@@ -156,13 +200,13 @@ export default function TeamWorkspace({ team, onNotice }) {
               <p className="mt-1 text-xs text-slate-500">Add the first {resources.find((item) => item.key === resource)?.label.toLowerCase().replace(/s$/, '')} for this team.</p>
             </div>
           ) : (
-            <div className="divide-y divide-slate-100 border-y border-slate-200 bg-white">
+            linkedResources.length > 0 ? renderTaskGroups() : <div className="divide-y divide-slate-100 border-y border-slate-200 bg-white">
               {records.map((record) => (
-                <article key={record.id} className="flex min-w-0 items-start gap-3 px-3 py-4 sm:px-4">
+                <article key={record.id} style={resource === 'projects' ? { backgroundColor: `color-mix(in srgb, ${record.color || '#6242c7'} 12%, white)`, borderLeft: `3px solid ${record.color || '#6242c7'}` } : undefined} className="flex min-w-0 items-start gap-3 px-3 py-4 sm:px-4">
                   <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-violet-50 text-violet-700"><CircleDot size={15} /></span>
                   <div className="min-w-0 flex-1">
-                    <h4 className="break-words text-sm font-medium text-slate-900">{getRecordTitle(resource, record)}</h4>
-                    <p className="mt-1 break-words text-xs leading-5 text-slate-500">{getRecordDescription(resource, record, workspace.tasks)}</p>
+                    <h4 className="wrap-break-word text-sm font-medium text-slate-900">{getRecordTitle(resource, record)}</h4>
+                    <p className="mt-1 wrap-break-word text-xs leading-5 text-slate-500">{getRecordDescription(resource, record)}</p>
                   </div>
                   {resource === 'tasks' && <span className="shrink-0 rounded bg-slate-100 px-2 py-1 text-[11px] capitalize text-slate-600">{record.is_completed ? 'done' : record.priority || 'low'}</span>}
                   {resource === 'subtasks' && record.is_completed && <span className="shrink-0 rounded bg-emerald-50 px-2 py-1 text-[11px] text-emerald-700">Done</span>}
