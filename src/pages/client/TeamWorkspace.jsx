@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { CalendarDays, CheckSquare2, CircleDot, FileText, FolderKanban, ListTodo, Plus, Tags } from 'lucide-react';
+import { AtSign, CalendarDays, CheckSquare2, CircleDot, FileText, FolderKanban, ListTodo, Plus, Tags } from 'lucide-react';
 import { createNote } from '../../api/noteApi.js';
 import { createPlan } from '../../api/planApi.js';
 import { createProject } from '../../api/projectApi.js';
@@ -7,7 +7,7 @@ import { createSubtask } from '../../api/subTaskApi.js';
 import { createTag } from '../../api/tagApi.js';
 import { createTask, toggleTaskComplete } from '../../api/taskApi.js';
 import { getApiErrorMessage } from '../../api/axios.js';
-import { getTeamWorkspace } from '../../api/teamWorkspaceApi.js';
+import { addTaskAssignee, getTaskAssignees, getTeamWorkspace, removeTaskAssignee } from '../../api/teamWorkspaceApi.js';
 
 const resources = [
   { key: 'tasks', label: 'Tasks', Icon: CheckSquare2 },
@@ -58,17 +58,35 @@ function isLightColor(color) {
   return (red * 299 + green * 587 + blue * 114) / 1000 > 150;
 }
 
-export default function TeamWorkspace({ team, onNotice }) {
+async function fetchTaskAssigneeMap(tasks) {
+  const entries = await Promise.all(tasks.map(async (task) => {
+    const response = await getTaskAssignees(task.id);
+    const assignees = response?.data?.data;
+    return [String(task.id), Array.isArray(assignees) ? assignees : []];
+  }));
+  return Object.fromEntries(entries);
+}
+
+export default function TeamWorkspace({ team, members = [], onNotice }) {
   const [resource, setResource] = useState('tasks');
   const [workspace, setWorkspace] = useState({ projects: [], tasks: [], tags: [], subtasks: [], notes: [], plans: [] });
   const [form, setForm] = useState(emptyForm);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [taskAssignees, setTaskAssignees] = useState({});
+  const [mentionTaskId, setMentionTaskId] = useState(null);
+  const [updatingMention, setUpdatingMention] = useState(false);
 
   const loadWorkspace = async () => {
     setLoading(true);
     try {
-      setWorkspace(await getTeamWorkspace(team.id));
+      const data = await getTeamWorkspace(team.id);
+      setWorkspace(data);
+      try {
+        setTaskAssignees(await fetchTaskAssigneeMap(data.tasks));
+      } catch (error) {
+        onNotice({ type: 'error', message: getApiErrorMessage(error) });
+      }
     } catch (error) {
       onNotice({ type: 'error', message: getApiErrorMessage(error) });
       setWorkspace({ projects: [], tasks: [], tags: [], subtasks: [], notes: [], plans: [] });
@@ -80,7 +98,16 @@ export default function TeamWorkspace({ team, onNotice }) {
   useEffect(() => {
     let active = true;
     getTeamWorkspace(team.id)
-      .then((data) => { if (active) setWorkspace(data); })
+      .then(async (data) => {
+        if (!active) return;
+        setWorkspace(data);
+        try {
+          const assignees = await fetchTaskAssigneeMap(data.tasks);
+          if (active) setTaskAssignees(assignees);
+        } catch (error) {
+          if (active) onNotice({ type: 'error', message: getApiErrorMessage(error) });
+        }
+      })
       .catch((error) => {
         if (!active) return;
         onNotice({ type: 'error', message: getApiErrorMessage(error) });
@@ -150,6 +177,30 @@ export default function TeamWorkspace({ team, onNotice }) {
     }
   };
 
+  const handleMentionChange = async (task, member, mentioned) => {
+    setUpdatingMention(true);
+    try {
+      if (mentioned) {
+        const response = await addTaskAssignee(task.id, member.id);
+        const assignee = response?.data?.data;
+        setTaskAssignees((current) => ({
+          ...current,
+          [String(task.id)]: [...(current[String(task.id)] || []), assignee || { task_id: task.id, member_id: member.id }],
+        }));
+      } else {
+        await removeTaskAssignee(task.id, member.id);
+        setTaskAssignees((current) => ({
+          ...current,
+          [String(task.id)]: (current[String(task.id)] || []).filter((assignee) => assignee.member_id !== member.id),
+        }));
+      }
+    } catch (error) {
+      onNotice({ type: 'error', message: getApiErrorMessage(error) });
+    } finally {
+      setUpdatingMention(false);
+    }
+  };
+
   const records = workspace[resource] || [];
   const taskRequired = ['subtasks', 'notes', 'plans'].includes(resource);
   const titleOnly = ['tasks', 'subtasks', 'notes', 'plans'].includes(resource);
@@ -185,6 +236,19 @@ export default function TeamWorkspace({ team, onNotice }) {
               <div className="min-w-0 flex-1">
                 <h4 className={`wrap-break-word text-sm font-medium ${task.is_completed ? 'text-slate-400 line-through' : 'text-slate-900'}`}>{getRecordTitle('tasks', task)}</h4>
                 <p className="mt-1 wrap-break-word text-xs leading-5 text-slate-500">{getRecordDescription('tasks', task)}</p>
+                <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                  {(taskAssignees[String(task.id)] || []).map((assignee) => {
+                    const member = members.find((item) => item.id === assignee.member_id);
+                    return member ? <span key={assignee.member_id} className="inline-flex max-w-full items-center gap-1 rounded bg-rose-50 px-2 py-1 text-[11px] font-medium text-rose-800"><AtSign size={12} />{member.name || `Member ${member.user_id?.slice(0, 8) || ''}`}</span> : null;
+                  })}
+                  <button type="button" onClick={() => setMentionTaskId(mentionTaskId === task.id ? null : task.id)} className="inline-flex items-center gap-1 rounded px-2 py-1 text-[11px] font-medium text-violet-800 hover:bg-violet-50" aria-expanded={mentionTaskId === task.id}><AtSign size={13} /> Mention</button>
+                </div>
+                {mentionTaskId === task.id && <div className="mt-2 grid gap-1 rounded-md border border-slate-200 bg-white p-2 sm:grid-cols-2">
+                  {members.map((member) => {
+                    const mentioned = (taskAssignees[String(task.id)] || []).some((assignee) => assignee.member_id === member.id);
+                    return <label key={member.id} className="flex min-w-0 items-center gap-2 rounded px-2 py-1.5 text-xs text-slate-700 hover:bg-slate-50"><input type="checkbox" checked={mentioned} disabled={updatingMention} onChange={(event) => handleMentionChange(task, member, event.target.checked)} className="h-3.5 w-3.5 shrink-0 rounded border-slate-300 text-violet-600 focus:ring-violet-500" /><span className="truncate">@{member.name || `Member ${member.user_id?.slice(0, 8) || ''}`}</span></label>;
+                  })}
+                </div>}
               </div>
               <span className={`shrink-0 rounded px-2 py-1 text-[11px] capitalize ${task.is_completed ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-600'}`}>{task.is_completed ? 'done' : task.priority || 'low'}</span>
             </article>

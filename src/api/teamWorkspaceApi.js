@@ -30,3 +30,19 @@ export async function getTeamWorkspace(teamId) {
   }));
   return Object.fromEntries(entries);
 }
+
+export const addTaskAssignee = (taskId, memberId) => api.post('/task-assignees', {
+  task_id: taskId,
+  member_id: memberId,
+});
+
+export const removeTaskAssignee = (taskId, memberId) => api.delete(`/task-assignees/${taskId}/${memberId}`);
+
+export async function getTaskAssignees(taskId) {
+  try {
+    return await api.get(`/task-assignees/task/${taskId}`);
+  } catch (error) {
+    if (error?.response?.status === 404) return { data: { data: [] } };
+    throw error;
+  }
+}

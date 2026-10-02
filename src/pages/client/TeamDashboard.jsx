@@ -278,7 +278,7 @@ export default function TeamDashboard() {
               </div>
 
               {activeTab === 'workspace' ? (
-                <TeamWorkspace key={activeTeam.id} team={activeTeam} onNotice={setNotice} />
+                <TeamWorkspace key={activeTeam.id} team={activeTeam} members={visibleMembers} onNotice={setNotice} />
               ) : activeTab === 'overview' ? (
                 <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
                   <section>
@@ -341,6 +341,6 @@ function MemberList({ members, currentUserId, loading }) {
 
 function MemberIdentity({ member, currentUserId, compact = false }) {
   const isCurrentUser = member.user_id === currentUserId;
-  const label = isCurrentUser ? 'You' : `Member ${member.user_id?.slice(0, 8) || ''}`;
-  return <div className={`flex min-w-0 items-center gap-3 ${compact ? 'px-4 py-3' : ''}`}><span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-violet-50 text-xs font-semibold uppercase text-violet-800">{isCurrentUser ? 'You'.slice(0, 1) : (member.user_id?.slice(0, 1) || 'M')}</span><span className="min-w-0 flex-1"><span className="block truncate text-sm font-medium text-slate-800">{label}</span><span className="block truncate text-xs capitalize text-slate-500">{member.role}{isCurrentUser ? ' · signed in' : ''}</span></span></div>;
+  const label = member.name || (isCurrentUser ? 'You' : `Member ${member.user_id?.slice(0, 8) || ''}`);
+  return <div className={`flex min-w-0 items-center gap-3 ${compact ? 'px-4 py-3' : ''}`}><span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-violet-50 text-xs font-semibold uppercase text-violet-800">{label.slice(0, 1)}</span><span className="min-w-0 flex-1"><span className="block truncate text-sm font-medium text-slate-800">{label}</span><span className="block truncate text-xs capitalize text-slate-500">{member.role}{isCurrentUser ? ' · signed in' : ''}</span></span></div>;
 }
