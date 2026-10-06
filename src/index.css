@@ -80,6 +80,30 @@ select {
   background-color: #f1f1f1 !important;
 }
 
+.client-dashboard [class*="text-indigo-"],
+.client-dashboard [class*="text-violet-"],
+.client-dashboard [class*="text-amber-"],
+.client-dashboard [class*="text-emerald-"],
+.client-dashboard [class*="text-yellow-"] {
+  color: #333 !important;
+}
+
+.client-dashboard [class*="bg-indigo-"],
+.client-dashboard [class*="bg-violet-"],
+.client-dashboard [class*="bg-amber-"],
+.client-dashboard [class*="bg-emerald-"],
+.client-dashboard [class*="bg-yellow-"] {
+  background-color: #f1f1f1 !important;
+}
+
+.client-dashboard [class*="border-indigo-"],
+.client-dashboard [class*="border-violet-"],
+.client-dashboard [class*="border-amber-"],
+.client-dashboard [class*="border-emerald-"],
+.client-dashboard [class*="border-yellow-"] {
+  border-color: #d4d4d4 !important;
+}
+
 .register-page {
   min-height: 100vh;
   display: grid;

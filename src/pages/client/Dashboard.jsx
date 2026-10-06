@@ -11,6 +11,7 @@ import { getCurrentUser } from '../../api/userApi.js';
 import { getSubtasksByTask, createSubtask, updateSubtask, deleteSubtask } from '../../api/subTaskApi.js';
 import { getApiErrorMessage } from '../../api/axios.js';
 import Button from '../../components/ui/Button.jsx';
+import clientDashboardBackground from '../../assets/client-backngorund-dashboard.jpg';
 
 const priorityMeta = {
   low: { label: 'No rush', className: 'bg-slate-100 text-slate-600' },
@@ -403,7 +404,7 @@ function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f3f3f3] text-slate-800">
+    <div className="client-dashboard min-h-screen text-slate-800" style={{ backgroundImage: `linear-gradient(rgb(255 255 255 / 78%), rgb(255 255 255 / 78%)), url(${clientDashboardBackground})`, backgroundPosition: 'center', backgroundSize: 'cover', backgroundAttachment: 'fixed' }}>
       <div className="mx-auto grid max-w-[1600px] grid-cols-1 gap-3 p-2 sm:gap-5 sm:p-4 lg:grid-cols-[13rem_minmax(0,1fr)] lg:p-6 xl:grid-cols-[13rem_minmax(0,1fr)_20rem]">
         <div className="flex flex-col gap-3 lg:hidden">
           <div className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white/90 p-3 shadow-sm">

@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { getAllUsers, getVisitors } from '../../api/userApi.js';
 import { getApiErrorMessage } from '../../api/axios.js';
 import { useAuth } from '../../context/AuthContext.jsx';
+import adminDashboardBackground from '../../assets/admin-background-dashboard.jpg';
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
@@ -51,18 +52,18 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 p-3 sm:p-6">
-      <div className="mx-auto max-w-6xl rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:rounded-3xl sm:p-6">
+    <div className="admin-dashboard min-h-screen p-3 sm:p-6" style={{ backgroundImage: `linear-gradient(rgb(255 255 255 / 84%), rgb(255 255 255 / 84%)), url(${adminDashboardBackground})`, backgroundPosition: 'center', backgroundSize: 'cover', backgroundAttachment: 'fixed' }}>
+      <div className="mx-auto max-w-6xl rounded-xl border border-slate-300 bg-white/95 p-4 shadow-sm sm:p-6">
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-sm text-slate-500">Admin</p>
             <h1 className="text-3xl font-bold text-slate-800">Dashboard</h1>
           </div>
           <div className="flex flex-wrap gap-2">
-            <button onClick={() => navigate('/admin/users')} className="rounded-xl bg-indigo-600 px-3 py-2.5 text-sm font-medium text-white hover:bg-indigo-500 sm:px-4">Manage users</button>
-            <button onClick={() => navigate('/admin/visitors')} className="inline-flex items-center gap-2 rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-2.5 text-sm font-medium text-indigo-700 hover:bg-indigo-100 sm:px-4">View visitors <ArrowRight size={15} /></button>
+            <button onClick={() => navigate('/admin/users')} className="rounded-lg bg-slate-900 px-3 py-2.5 text-sm font-medium text-white hover:bg-slate-700 sm:px-4">Manage users</button>
+            <button onClick={() => navigate('/admin/visitors')} className="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-100 sm:px-4">View visitors <ArrowRight size={15} /></button>
             <button onClick={refreshDashboard} className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-700 sm:px-4"><RefreshCcw size={15} /> Refresh</button>
-            <button onClick={() => { logout(); navigate('/login', { replace: true }); }} className="inline-flex items-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2.5 text-sm font-medium text-rose-600 sm:px-4"><LogOut size={15} /> Logout</button>
+            <button onClick={() => { logout(); navigate('/login', { replace: true }); }} className="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-100 sm:px-4"><LogOut size={15} /> Logout</button>
           </div>
         </div>
 
@@ -85,13 +86,13 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        <div className="mb-6 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+        <div className="mb-6 rounded-xl border border-slate-300 bg-slate-50/95 p-4">
           <div className="mb-4 flex items-center justify-between">
             <div>
               <h2 className="text-lg font-semibold text-slate-800">Users</h2>
               <p className="text-sm text-slate-500">All registered users</p>
             </div>
-            <button onClick={() => navigate('/admin/users')} className="text-sm font-medium text-indigo-600 hover:text-indigo-700">Manage users</button>
+            <button onClick={() => navigate('/admin/users')} className="text-sm font-medium text-slate-800 underline underline-offset-2 hover:text-black">Manage users</button>
           </div>
             {loading ? (
               <div className="text-sm text-slate-500">Loading users…</div>
