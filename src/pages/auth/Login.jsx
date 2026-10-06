@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Link, Navigate, useNavigate } from 'react-router-dom';
-import { LogIn, Mail, Lock } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { ArrowRight, Check, Lock, Mail } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { getApiErrorMessage } from '../../api/axios.js';
+import signupImage from '../../assets/sign-up-page-image.jpg';
 
 export default function Login() {
   const { login, isAuthenticated, user } = useAuth();
@@ -46,45 +47,64 @@ export default function Login() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-100 via-violet-50 to-slate-100 p-4">
-      <div className="w-full max-w-md rounded-[28px] border border-slate-200 bg-white/95 p-8 shadow-[0_20px_50px_rgba(15,23,42,0.08)] backdrop-blur-sm">
-        <div className="mb-8 text-center">
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-500 text-white shadow-lg shadow-violet-200/70">
-            <LogIn size={24} />
+    <main className="register-page">
+      <section className="register-form-panel">
+        <Link to="/" className="register-brand" aria-label="Todo home">
+          <span className="register-brand-mark"><Check size={17} strokeWidth={3} /></span>
+          <span>todo</span>
+        </Link>
+
+        <div className="register-form-content">
+          <div className="register-heading">
+            <p className="register-eyebrow">WELCOME BACK</p>
+            <h1>Sign in to your day</h1>
+            <p>Pick up where you left off.</p>
           </div>
-          <h1 className="text-3xl font-bold tracking-tight text-slate-800">Welcome back</h1>
-          <p className="mt-2 text-sm text-slate-500">Sign in to your workspace</p>
+
+          <form onSubmit={handleSubmit} className="register-form">
+            <div className="register-field">
+              <label htmlFor="login-email">Email address</label>
+              <div className="register-input-wrap">
+                <Mail size={17} aria-hidden="true" />
+                <input id="login-email" name="email" type="email" autoComplete="email" value={form.email} onChange={handleChange} placeholder="you@example.com" required />
+              </div>
+            </div>
+
+            <div className="register-field">
+              <label htmlFor="login-password">Password</label>
+              <div className="register-input-wrap">
+                <Lock size={17} aria-hidden="true" />
+                <input id="login-password" name="password" type="password" autoComplete="current-password" value={form.password} onChange={handleChange} placeholder="Your password" required />
+              </div>
+            </div>
+
+            {error && <div className="register-error" role="alert">{error}</div>}
+
+            <button type="submit" disabled={loading} className="register-submit">
+              <span>{loading ? 'Signing in...' : 'Sign in'}</span>
+              <ArrowRight size={18} aria-hidden="true" />
+            </button>
+          </form>
+
+          <p className="register-login-prompt">
+            Need an account?{' '}
+            <Link to="/register">Create one</Link>
+          </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <div>
-            <label className="mb-1.5 block text-sm font-medium text-slate-600">Email</label>
-            <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 transition focus-within:border-violet-400 focus-within:bg-white">
-              <Mail size={16} className="text-slate-400" />
-              <input name="email" type="email" value={form.email} onChange={handleChange} className="w-full border-0 bg-transparent py-3 text-sm text-slate-700 outline-none placeholder:text-slate-400" placeholder="name@email.com" required />
-            </div>
-          </div>
+        <p className="register-legal">Your work is right where you left it.</p>
+      </section>
 
-          <div>
-            <label className="mb-1.5 block text-sm font-medium text-slate-600">Password</label>
-            <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 transition focus-within:border-violet-400 focus-within:bg-white">
-              <Lock size={16} className="text-slate-400" />
-              <input name="password" type="password" value={form.password} onChange={handleChange} className="w-full border-0 bg-transparent py-3 text-sm text-slate-700 outline-none placeholder:text-slate-400" placeholder="••••••••" required />
-            </div>
-          </div>
-
-          {error && <div className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-600">{error}</div>}
-
-          <button type="submit" disabled={loading} className="w-full rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-md shadow-violet-200 transition hover:from-violet-500 hover:to-indigo-500 disabled:cursor-not-allowed disabled:opacity-60">
-            {loading ? 'Signing in...' : 'Sign in'}
-          </button>
-        </form>
-
-        <p className="mt-6 text-center text-sm text-slate-500">
-          Need an account?{' '}
-          <Link to="/register" className="font-medium text-violet-600 hover:text-violet-500">Create one</Link>
-        </p>
-      </div>
-    </div>
+      <aside className="register-image-panel" aria-label="Planning tasks on a tablet">
+        <img src={signupImage} alt="A person writing a to-do list on a tablet" />
+        <div className="register-image-shade" />
+        <div className="register-image-copy">
+          <span className="register-image-kicker">LESS NOISE. MORE FOCUS.</span>
+          <p>One thing<br />at a time.</p>
+          <span className="register-image-rule" />
+          <span className="register-image-caption">Your plans, in one place.</span>
+        </div>
+      </aside>
+    </main>
   );
 }
