@@ -33,6 +33,28 @@ const emptyForm = {
   end_at: '',
 };
 
+function getDateKey(value) {
+  if (value instanceof Date) {
+    const year = value.getFullYear();
+    const month = String(value.getMonth() + 1).padStart(2, '0');
+    const day = String(value.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+  return value ? String(value).slice(0, 10) : '';
+}
+
+function getCurrentWeekDays() {
+  const today = new Date();
+  const monday = new Date(today);
+  monday.setHours(0, 0, 0, 0);
+  monday.setDate(today.getDate() - ((today.getDay() + 6) % 7));
+  return Array.from({ length: 7 }, (_, index) => {
+    const date = new Date(monday);
+    date.setDate(monday.getDate() + index);
+    return date;
+  });
+}
+
 function getRecordTitle(resource, record) {
   if (resource === 'projects' || resource === 'tags') return record.name || 'Untitled';
   return record.title || 'Untitled';
@@ -202,6 +224,12 @@ export default function TeamWorkspace({ team, members = [], onNotice }) {
   };
 
   const records = workspace[resource] || [];
+  const weekDays = getCurrentWeekDays();
+  const weekDateKeys = new Set(weekDays.map(getDateKey));
+  const scheduledTasks = workspace.tasks.filter((task) => (
+    weekDateKeys.has(getDateKey(task.due_date))
+    || workspace.plans.some((plan) => String(plan.task_id) === String(task.id) && weekDateKeys.has(getDateKey(plan.date)))
+  ));
   const taskRequired = ['subtasks', 'notes', 'plans'].includes(resource);
   const titleOnly = ['tasks', 'subtasks', 'notes', 'plans'].includes(resource);
   const linkedResources = resource === 'tasks' ? ['subtasks', 'notes', 'plans'] : taskRequired ? [resource] : [];
@@ -272,6 +300,49 @@ export default function TeamWorkspace({ team, members = [], onNotice }) {
         </div>
         <span className="text-xs text-slate-500">{records.length} {records.length === 1 ? 'item' : 'items'}</span>
       </div>
+
+      <section className="mb-8 border-y border-slate-200 py-4" aria-label="Weekly team schedule">
+        <div className="mb-4 flex items-end justify-between gap-3">
+          <div>
+            <h3 className="text-sm font-semibold text-slate-900">Weekly task plan</h3>
+            <p className="mt-1 text-xs text-slate-500">Due dates and planned work this week</p>
+          </div>
+          <span className="shrink-0 text-xs text-slate-500">{scheduledTasks.length} scheduled</span>
+        </div>
+        <div className="overflow-x-auto overscroll-x-contain">
+          <div className="min-w-175">
+            <div className="grid grid-cols-[minmax(150px,1.5fr)_repeat(7,minmax(72px,1fr))] border-b border-slate-200">
+              <span className="px-3 py-2 text-[10px] font-semibold uppercase text-slate-400">Task</span>
+              {weekDays.map((day) => {
+                const isToday = getDateKey(day) === getDateKey(new Date());
+                return <div key={day.toISOString()} className={`px-2 py-2 text-center ${isToday ? 'bg-slate-100' : ''}`}>
+                  <span className="block text-[10px] text-slate-400">{day.toLocaleDateString(undefined, { weekday: 'short' })}</span>
+                  <span className={`mt-0.5 block text-xs font-semibold ${isToday ? 'text-slate-950' : 'text-slate-600'}`}>{day.getDate()}</span>
+                </div>;
+              })}
+            </div>
+            {scheduledTasks.length === 0 ? (
+              <p className="px-3 py-6 text-center text-xs text-slate-500">No tasks or plans scheduled this week.</p>
+            ) : scheduledTasks.slice(0, 12).map((task) => (
+              <div key={task.id} className="grid min-h-14 grid-cols-[minmax(150px,1.5fr)_repeat(7,minmax(72px,1fr))] border-b border-slate-100 last:border-0">
+                <div className="flex min-w-0 items-center gap-2 px-3 py-2">
+                  <span className={`h-2 w-2 shrink-0 rounded-full ${task.is_completed ? 'bg-slate-300' : 'bg-slate-900'}`} />
+                  <span className={`truncate text-xs font-medium ${task.is_completed ? 'text-slate-400 line-through' : 'text-slate-700'}`} title={task.title}>{task.title || 'Untitled task'}</span>
+                </div>
+                {weekDays.map((day) => {
+                  const dayKey = getDateKey(day);
+                  const dueToday = getDateKey(task.due_date) === dayKey;
+                  const dayPlans = workspace.plans.filter((plan) => String(plan.task_id) === String(task.id) && getDateKey(plan.date) === dayKey);
+                  return <div key={dayKey} className={`flex min-w-0 flex-col justify-center gap-1 border-l border-slate-100 px-1.5 py-2 ${dayKey === getDateKey(new Date()) ? 'bg-slate-50/70' : ''}`}>
+                    {dueToday && <span className="truncate rounded-sm bg-slate-900 px-1.5 py-1 text-[10px] font-medium text-white" title="Task due">Due</span>}
+                    {dayPlans.map((plan) => <span key={plan.id} className="truncate rounded-sm border border-slate-300 bg-white px-1.5 py-1 text-[10px] text-slate-700" title={`${plan.title}${plan.start_at ? ` · ${plan.start_at}` : ''}`}>{plan.start_at || plan.title}</span>)}
+                  </div>;
+                })}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
       <div className="mb-6 flex gap-2 overflow-x-auto border-b border-slate-200" role="tablist" aria-label="Workspace resources">
         {resources.map(({ key, label, Icon }) => (

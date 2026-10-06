@@ -28,3 +28,323 @@ select {
 * {
   box-sizing: border-box;
 }
+
+.register-page {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: minmax(440px, 0.94fr) minmax(0, 1.06fr);
+  color: #111;
+  background: #fff;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+}
+
+.register-form-panel {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 34px clamp(32px, 6.2vw, 92px) 26px;
+}
+
+.register-brand {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  gap: 10px;
+  color: #111;
+  font-size: 21px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.register-brand-mark {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border: 1.5px solid #111;
+}
+
+.register-form-content {
+  width: min(100%, 390px);
+  margin: auto;
+  padding: 52px 0;
+  animation: register-enter 550ms ease-out both;
+}
+
+.register-heading {
+  margin-bottom: 32px;
+}
+
+.register-eyebrow,
+.register-image-kicker {
+  margin: 0;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+}
+
+.register-eyebrow {
+  color: #777;
+}
+
+.register-heading h1 {
+  margin: 14px 0 10px;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(34px, 3vw, 43px);
+  font-weight: 400;
+  line-height: 1.12;
+}
+
+.register-heading > p:last-child {
+  margin: 0;
+  color: #737373;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.register-form {
+  display: grid;
+  gap: 18px;
+}
+
+.register-field label {
+  display: block;
+  margin-bottom: 8px;
+  color: #242424;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.register-input-wrap {
+  height: 52px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 14px;
+  border: 1px solid #dedede;
+  background: #fff;
+  color: #777;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.register-input-wrap:focus-within {
+  border-color: #111;
+  box-shadow: 0 0 0 1px #111;
+}
+
+.register-input-wrap input {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #111;
+  font-size: 13px;
+}
+
+.register-input-wrap input::placeholder {
+  color: #a0a0a0;
+}
+
+.register-submit {
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 4px;
+  padding: 0 17px;
+  border: 1px solid #111;
+  background: #111;
+  color: #fff;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: background 150ms ease, color 150ms ease;
+}
+
+.register-submit:hover:not(:disabled) {
+  background: #fff;
+  color: #111;
+}
+
+.register-submit:focus-visible,
+.register-brand:focus-visible,
+.register-login-prompt a:focus-visible {
+  outline: 2px solid #111;
+  outline-offset: 4px;
+}
+
+.register-submit:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.register-error {
+  padding: 11px 13px;
+  border-left: 2px solid #111;
+  background: #f3f3f3;
+  color: #222;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.register-login-prompt {
+  margin: 23px 0 0;
+  color: #737373;
+  font-size: 12px;
+  text-align: center;
+}
+
+.register-login-prompt a {
+  color: #111;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.register-legal {
+  margin: 0;
+  color: #898989;
+  font-size: 10px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.register-image-panel {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  background: #171717;
+}
+
+.register-image-panel > img,
+.register-image-shade {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.register-image-panel > img {
+  object-fit: cover;
+  object-position: 52% center;
+  filter: grayscale(1);
+}
+
+.register-image-shade {
+  background: linear-gradient(180deg, rgb(0 0 0 / 8%) 24%, rgb(0 0 0 / 68%) 100%);
+}
+
+.register-image-copy {
+  position: absolute;
+  right: 9%;
+  bottom: 9%;
+  left: 9%;
+  color: #fff;
+}
+
+.register-image-kicker {
+  color: rgb(255 255 255 / 76%);
+}
+
+.register-image-copy p {
+  margin: 20px 0 22px;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(48px, 6vw, 82px);
+  font-weight: 400;
+  line-height: 0.98;
+}
+
+.register-image-rule {
+  width: 38px;
+  height: 1px;
+  display: block;
+  margin-bottom: 15px;
+  background: #fff;
+}
+
+.register-image-caption {
+  color: rgb(255 255 255 / 82%);
+  font-size: 12px;
+}
+
+@keyframes register-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 760px) {
+  .register-page {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .register-form-panel {
+    min-height: auto;
+    padding: 20px 24px 22px;
+  }
+
+  .register-form-content {
+    padding: 28px 0 26px;
+  }
+
+  .register-heading {
+    margin-bottom: 25px;
+  }
+
+  .register-form {
+    gap: 16px;
+  }
+
+  .register-image-panel {
+    order: -1;
+    min-height: 180px;
+    height: clamp(180px, 25svh, 230px);
+  }
+
+  .register-image-panel > img {
+    object-position: 54% 43%;
+  }
+
+  .register-image-copy {
+    right: 24px;
+    bottom: 18px;
+    left: 24px;
+  }
+
+  .register-image-copy p {
+    margin: 10px 0 12px;
+    font-size: clamp(38px, 10vw, 52px);
+  }
+
+  .register-image-rule {
+    margin-bottom: 9px;
+  }
+}
+
+@media (max-width: 380px) {
+  .register-form-panel {
+    padding-right: 20px;
+    padding-left: 20px;
+  }
+
+  .register-form-content {
+    padding-top: 22px;
+  }
+
+  .register-heading h1 {
+    font-size: 32px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .register-form-content {
+    animation: none;
+  }
+}

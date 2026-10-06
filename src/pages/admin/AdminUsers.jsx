@@ -60,24 +60,26 @@ export default function AdminUsers() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 p-6">
-      <div className="mx-auto max-w-6xl rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+    <div className="min-h-screen bg-slate-100 p-3 sm:p-6">
+      <div className="mx-auto max-w-6xl rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:rounded-3xl sm:p-6">
         <div className="mb-6 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
             <p className="text-sm text-slate-500">Admin</p>
             <h1 className="text-3xl font-bold text-slate-800">Users</h1>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
+            <div className="flex min-w-0 items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
               <Search size={15} className="text-slate-400" />
-              <input value={search} onChange={(e) => setSearch(e.target.value)} className="w-52 border-0 bg-transparent text-sm outline-none" placeholder="Search by email" />
+              <input value={search} onChange={(e) => setSearch(e.target.value)} className="w-full border-0 bg-transparent text-sm outline-none sm:w-52" placeholder="Search by email" />
             </div>
-            <button onClick={handleSearch} className="rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white">Search</button>
-            <button onClick={loadUsers} className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-700"><RefreshCcw size={15} /> Refresh</button>
+            <div className="flex gap-2">
+              <button onClick={handleSearch} className="flex-1 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white sm:flex-none">Search</button>
+              <button onClick={loadUsers} className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-700 sm:flex-none"><RefreshCcw size={15} /> Refresh</button>
+            </div>
           </div>
         </div>
 
-        <div className="overflow-hidden rounded-2xl border border-slate-200">
+        <div className="overflow-x-auto rounded-2xl border border-slate-200">
           <table className="min-w-full divide-y divide-slate-200 text-left">
             <thead className="bg-slate-50">
               <tr>

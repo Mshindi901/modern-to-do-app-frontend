@@ -205,10 +205,10 @@ export default function TeamDashboard() {
 
   return (
     <div className="min-h-screen bg-[#f8f7ff] text-slate-900 lg:flex">
-      <aside className="flex w-full shrink-0 flex-col bg-[#302060] text-white lg:min-h-screen lg:w-70">
+      <aside className="flex w-full shrink-0 flex-col bg-[#111] text-white lg:min-h-screen lg:w-70">
         <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
           <button onClick={() => navigate('/app')} className="flex items-center gap-3 text-left">
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#e4ed59] text-[#302060]"><Building2 size={20} /></span>
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-black"><Building2 size={20} /></span>
             <span><span className="block text-sm font-semibold">Team spaces</span><span className="block text-xs text-violet-100/65">The lazy / workspace</span></span>
           </button>
           <div className="flex items-center gap-1">

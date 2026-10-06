@@ -38,12 +38,12 @@ export default function ProjectDetails() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-100 p-6">
-      <div className="mx-auto max-w-5xl rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-        <div className="mb-6 flex items-center justify-between">
+    <div className="min-h-screen bg-slate-100 p-3 sm:p-6">
+      <div className="mx-auto max-w-5xl rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:rounded-3xl sm:p-6">
+        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-sm text-slate-500">Project</p>
-            <h1 className="text-3xl font-bold text-slate-800">{project?.name || 'Project details'}</h1>
+            <h1 className="break-words text-2xl font-bold text-slate-800 sm:text-3xl">{project?.name || 'Project details'}</h1>
           </div>
           <button onClick={() => navigate('/app/projects')} className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600">Back to projects</button>
         </div>

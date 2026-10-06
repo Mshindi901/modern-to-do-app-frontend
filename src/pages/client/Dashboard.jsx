@@ -357,12 +357,12 @@ function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-100 via-slate-50 to-violet-50 text-slate-800">
-      <div className="mx-auto flex max-w-[1600px] flex-col gap-3 p-2 sm:gap-5 sm:p-4 lg:flex-row lg:p-6">
+    <div className="min-h-screen bg-[#f3f3f3] text-slate-800">
+      <div className="mx-auto grid max-w-[1600px] grid-cols-1 gap-3 p-2 sm:gap-5 sm:p-4 lg:grid-cols-[18rem_minmax(0,1fr)] lg:p-6 xl:grid-cols-[18rem_minmax(0,1fr)_22rem]">
         <div className="flex flex-col gap-3 lg:hidden">
           <div className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white/90 p-3 shadow-sm">
             <div className="flex items-center gap-2">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-indigo-500 font-bold text-white">T</div>
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-black font-bold text-white">T</div>
               <span className="font-semibold text-slate-800">The lazy</span>
             </div>
             <div className="flex items-center gap-1">
@@ -419,10 +419,10 @@ function Dashboard() {
             </div>
           </div>
         </div>
-        <aside className="hidden w-72 shrink-0 rounded-3xl border border-slate-200 bg-white/90 p-4 shadow-sm backdrop-blur-sm lg:flex lg:flex-col">
+        <aside className="hidden min-w-0 rounded-xl border border-slate-200 bg-white p-4 shadow-sm lg:flex lg:flex-col">
           <div className="mb-6 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-indigo-500 text-lg font-bold text-white shadow-sm shadow-violet-200">T</div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-black text-lg font-bold text-white">T</div>
               <div>
                 <h2 className="text-lg font-semibold tracking-tight text-slate-800">The lazy</h2>
               </div>
@@ -493,7 +493,7 @@ function Dashboard() {
           </div>
         </aside>
 
-        <main className="min-w-0 flex-1 rounded-2xl border border-slate-200 bg-white/95 p-3 shadow-sm sm:rounded-3xl sm:p-6">
+        <main className="min-w-0 rounded-xl border border-slate-200 bg-white p-3 shadow-sm sm:p-6">
           <div className="mb-6 flex flex-col gap-4 border-b border-slate-200 pb-5 md:flex-row md:items-center md:justify-between">
             <div>
               <p className="text-sm text-slate-500">{greeting},</p>
@@ -515,7 +515,7 @@ function Dashboard() {
               { label: 'Pending', value: summary.pending, icon: CalendarDays },
               { label: 'Starred', value: summary.starred, icon: Star },
             ].map(({ label, value, icon: Icon }) => (
-              <div key={label} className="rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-50 to-white p-4 shadow-sm shadow-slate-200/40">
+              <div key={label} className="rounded-xl border border-slate-200 bg-white p-4">
                 <div className="mb-2 flex items-center justify-between text-slate-500">
                   <span className="text-sm">{label}</span>
                   <Icon size={16} />
@@ -561,7 +561,7 @@ function Dashboard() {
           </div>
         </main>
 
-        <aside className="w-full shrink-0 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:rounded-3xl sm:p-5 xl:w-[380px]">
+        <aside className="min-w-0 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5 lg:col-span-2 xl:col-span-1">
           {selectedTask ? (
             <div>
               <div className="mb-5 flex items-center justify-between">
