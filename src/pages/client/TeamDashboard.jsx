@@ -204,75 +204,75 @@ export default function TeamDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f8f7ff] text-slate-900 lg:flex">
+    <div className="team-dashboard min-h-screen bg-white text-slate-900 lg:flex">
       <aside className="flex w-full shrink-0 flex-col bg-[#111] text-white lg:min-h-screen lg:w-70">
         <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
           <button onClick={() => navigate('/app')} className="flex items-center gap-3 text-left">
             <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-black"><Building2 size={20} /></span>
-            <span><span className="block text-sm font-semibold">Team spaces</span><span className="block text-xs text-violet-100/65">The lazy / workspace</span></span>
+            <span><span className="block text-sm font-semibold">Team spaces</span><span className="block text-xs text-white/60">The lazy / workspace</span></span>
           </button>
           <div className="flex items-center gap-1">
-            <button onClick={() => navigate('/app/notifications')} className="rounded-lg p-2 text-violet-100/70 hover:bg-white/10 hover:text-white" title="Notifications" aria-label="Notifications"><Bell size={18} /></button>
-            <button onClick={() => navigate('/app')} className="rounded-lg p-2 text-violet-100/70 hover:bg-white/10 hover:text-white" title="Back to personal tasks" aria-label="Back to personal tasks"><ArrowLeft size={18} /></button>
+            <button onClick={() => navigate('/app/notifications')} className="rounded-lg p-2 text-white/70 hover:bg-white/10 hover:text-white" title="Notifications" aria-label="Notifications"><Bell size={18} /></button>
+            <button onClick={() => navigate('/app')} className="rounded-lg p-2 text-white/70 hover:bg-white/10 hover:text-white" title="Back to personal tasks" aria-label="Back to personal tasks"><ArrowLeft size={18} /></button>
           </div>
         </div>
 
         <div className="flex items-center justify-between px-5 pb-2 pt-6">
-          <p className="text-[11px] font-semibold uppercase text-violet-100/60">Your teams</p>
-          <button onClick={openCreateTeam} className="rounded-md p-1.5 text-violet-100 hover:bg-white/10" aria-label="Create team" title="Create team"><Plus size={17} /></button>
+          <p className="text-[11px] font-semibold uppercase text-white/55">Your teams</p>
+          <button onClick={openCreateTeam} className="rounded-md p-1.5 text-white/75 hover:bg-white/10" aria-label="Create team" title="Create team"><Plus size={17} /></button>
         </div>
         <nav className="flex gap-2 overflow-x-auto px-3 pb-3 lg:flex-col lg:overflow-visible">
           {teams.map((team) => (
-            <button key={team.id} onClick={() => navigate(`/app/teams/${team.id}`)} className={`flex min-w-48 items-center gap-3 rounded-lg px-3 py-2.5 text-left transition lg:min-w-0 ${activeTeam?.id === team.id ? 'bg-white/14 text-white' : 'text-violet-50/75 hover:bg-white/8 hover:text-white'}`}>
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#e4ed59]/15 text-[#e4ed59]"><Users size={16} /></span>
+            <button key={team.id} onClick={() => navigate(`/app/teams/${team.id}`)} className={`flex min-w-48 items-center gap-3 rounded-lg px-3 py-2.5 text-left transition lg:min-w-0 ${activeTeam?.id === team.id ? 'bg-white/15 text-white' : 'text-white/70 hover:bg-white/10 hover:text-white'}`}>
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/10 text-white"><Users size={16} /></span>
               <span className="min-w-0 flex-1 truncate text-sm font-medium">{team.name}</span>
-              <span className="text-[10px] capitalize text-violet-100/60">{team.memberRole}</span>
+              <span className="text-[10px] capitalize text-white/55">{team.memberRole}</span>
             </button>
           ))}
-          {teams.length === 0 && <p className="px-3 py-3 text-xs text-violet-100/60">No team spaces yet.</p>}
+          {teams.length === 0 && <p className="px-3 py-3 text-xs text-white/55">No team spaces yet.</p>}
         </nav>
 
         <div className="hidden space-y-1 border-t border-white/10 px-3 py-4 lg:mt-auto lg:block">
-          <button onClick={() => navigate('/app')} className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-violet-50/70 hover:bg-white/10 hover:text-white"><ArrowLeft size={16} /> Personal tasks</button>
-          <button onClick={logout} className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-violet-50/70 hover:bg-white/10 hover:text-white"><LogOut size={16} /> Sign out</button>
+          <button onClick={() => navigate('/app')} className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-white/70 hover:bg-white/10 hover:text-white"><ArrowLeft size={16} /> Personal tasks</button>
+          <button onClick={logout} className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-white/70 hover:bg-white/10 hover:text-white"><LogOut size={16} /> Sign out</button>
         </div>
       </aside>
 
-      <main className="min-w-0 flex-1 bg-[radial-gradient(ellipse_at_top_right,#efedff_0,#f8f7ff_42%,#fff_100%)] px-4 py-5 sm:px-7 sm:py-7 lg:px-10">
+      <main className="min-w-0 flex-1 bg-white px-4 py-5 sm:px-7 sm:py-7 lg:px-10">
         <div className="mx-auto max-w-6xl">
-          {notice && <div role="status" className={`mb-5 flex items-center justify-between gap-3 rounded-lg border px-4 py-3 text-sm ${notice.type === 'error' ? 'border-rose-200 bg-rose-50 text-rose-700' : 'border-violet-200 bg-violet-50 text-violet-800'}`}><span>{notice.message}</span><button onClick={() => setNotice(null)} aria-label="Dismiss notification"><X size={15} /></button></div>}
+          {notice && <div role="status" className={`mb-5 flex items-center justify-between gap-3 rounded-lg border px-4 py-3 text-sm ${notice.type === 'error' ? 'border-slate-400 bg-slate-100 text-slate-900' : 'border-slate-200 bg-slate-50 text-slate-800'}`}><span>{notice.message}</span><button onClick={() => setNotice(null)} aria-label="Dismiss notification"><X size={15} /></button></div>}
 
           {!activeTeam ? (
             <section className="flex min-h-[65vh] flex-col items-center justify-center text-center">
-              <span className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#e4ed59] text-[#302060]"><Users size={28} /></span>
-              <p className="mb-2 text-xs font-semibold uppercase text-violet-800">A shared space for your people</p>
+              <span className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-100 text-slate-900"><Users size={28} /></span>
+              <p className="mb-2 text-xs font-semibold uppercase text-slate-600">A shared space for your people</p>
               <h1 className="max-w-lg text-3xl font-semibold text-slate-900">Bring a team together.</h1>
               <p className="mt-3 max-w-md text-sm leading-6 text-slate-500">Create a workspace, invite people who already use The lazy, and keep the right roles clear.</p>
-              <button onClick={openCreateTeam} className="mt-7 inline-flex items-center gap-2 rounded-lg bg-[#6242c7] px-4 py-3 text-sm font-semibold text-white hover:bg-[#5032ae]"><CirclePlus size={17} /> Create your first team</button>
+              <button onClick={openCreateTeam} className="mt-7 inline-flex items-center gap-2 rounded-lg bg-slate-900 px-4 py-3 text-sm font-semibold text-white hover:bg-slate-700"><CirclePlus size={17} /> Create your first team</button>
             </section>
           ) : (
             <>
               <div className="mb-8 flex flex-col gap-5 border-b border-slate-200 pb-6 sm:flex-row sm:items-end sm:justify-between">
                 <div className="min-w-0">
-                  <div className="mb-3 flex items-center gap-2 text-xs font-medium text-violet-800"><span>Workspace</span><ChevronDown size={13} /><span className="capitalize">{activeTeam.memberRole}</span></div>
+                  <div className="mb-3 flex items-center gap-2 text-xs font-medium text-slate-600"><span>Workspace</span><ChevronDown size={13} /><span className="capitalize">{activeTeam.memberRole}</span></div>
                   <h1 className="wrap-break-word text-3xl font-semibold text-slate-950">{activeTeam.name}</h1>
                   <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">{activeTeam.description || 'A focused space for your team to coordinate and share ownership.'}</p>
                 </div>
                 <div className="flex shrink-0 flex-wrap gap-2">
                   {isOwner && <button onClick={openEditTeam} className="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50"><Pencil size={15} /> Edit details</button>}
-                  {canManageMembers && <button onClick={() => setModal('invite')} className="inline-flex items-center gap-2 rounded-lg bg-[#6242c7] px-3 py-2.5 text-sm font-medium text-white hover:bg-[#5032ae]"><Plus size={16} /> Invite member</button>}
+                  {canManageMembers && <button onClick={() => setModal('invite')} className="inline-flex items-center gap-2 rounded-lg bg-slate-900 px-3 py-2.5 text-sm font-medium text-white hover:bg-slate-700"><Plus size={16} /> Invite member</button>}
                 </div>
               </div>
 
               <div className="mb-7 grid gap-px overflow-hidden rounded-xl border border-slate-200 bg-slate-200 sm:grid-cols-3">
-                <div className="bg-white p-4 sm:p-5"><div className="mb-3 flex items-center justify-between text-xs text-slate-500"><span>People</span><Users size={16} className="text-violet-700" /></div><strong className="text-2xl font-semibold">{membersLoading ? '...' : visibleMembers.length}</strong></div>
-                <div className="bg-white p-4 sm:p-5"><div className="mb-3 flex items-center justify-between text-xs text-slate-500"><span>Admins & owners</span><ShieldCheck size={16} className="text-violet-700" /></div><strong className="text-2xl font-semibold">{membersLoading ? '...' : adminsCount}</strong></div>
-                <div className="bg-white p-4 sm:p-5"><div className="mb-3 flex items-center justify-between text-xs text-slate-500"><span>Your access</span><Building2 size={16} className="text-violet-700" /></div><strong className="text-lg font-semibold capitalize">{currentMembership?.role || activeTeam.memberRole}</strong></div>
+                <div className="bg-white p-4 sm:p-5"><div className="mb-3 flex items-center justify-between text-xs text-slate-500"><span>People</span><Users size={16} className="text-slate-700" /></div><strong className="text-2xl font-semibold">{membersLoading ? '...' : visibleMembers.length}</strong></div>
+                <div className="bg-white p-4 sm:p-5"><div className="mb-3 flex items-center justify-between text-xs text-slate-500"><span>Admins & owners</span><ShieldCheck size={16} className="text-slate-700" /></div><strong className="text-2xl font-semibold">{membersLoading ? '...' : adminsCount}</strong></div>
+                <div className="bg-white p-4 sm:p-5"><div className="mb-3 flex items-center justify-between text-xs text-slate-500"><span>Your access</span><Building2 size={16} className="text-slate-700" /></div><strong className="text-lg font-semibold capitalize">{currentMembership?.role || activeTeam.memberRole}</strong></div>
               </div>
 
               <div className="mb-5 flex items-center justify-between border-b border-slate-200">
                 <div className="flex gap-5" role="tablist" aria-label="Team sections">
-                  {['overview', 'workspace', 'members'].map((tab) => <button key={tab} role="tab" aria-selected={activeTab === tab} onClick={() => setActiveTab(tab)} className={`border-b-2 px-1 pb-3 text-sm font-medium capitalize ${activeTab === tab ? 'border-[#6242c7] text-[#5032ae]' : 'border-transparent text-slate-500 hover:text-slate-800'}`}>{tab}</button>)}
+                  {['overview', 'workspace', 'members'].map((tab) => <button key={tab} role="tab" aria-selected={activeTab === tab} onClick={() => setActiveTab(tab)} className={`border-b-2 px-1 pb-3 text-sm font-medium capitalize ${activeTab === tab ? 'border-slate-900 text-slate-950' : 'border-transparent text-slate-500 hover:text-slate-800'}`}>{tab}</button>)}
                 </div>
                 {!isOwner && currentMembership && currentMembership.role !== 'owner' && <button onClick={() => setPendingRemoval(currentMembership)} className="mb-2 text-xs font-medium text-rose-700 hover:text-rose-900">Leave team</button>}
               </div>
@@ -282,7 +282,7 @@ export default function TeamDashboard() {
               ) : activeTab === 'overview' ? (
                 <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
                   <section>
-                    <div className="mb-4 flex items-center justify-between"><div><h2 className="text-lg font-semibold">People</h2><p className="mt-1 text-sm text-slate-500">The people with access to this workspace.</p></div><button onClick={() => setActiveTab('members')} className="text-sm font-medium text-violet-800 hover:text-violet-950">View roster <span aria-hidden="true">-&gt;</span></button></div>
+                    <div className="mb-4 flex items-center justify-between"><div><h2 className="text-lg font-semibold">People</h2><p className="mt-1 text-sm text-slate-500">The people with access to this workspace.</p></div><button onClick={() => setActiveTab('members')} className="text-sm font-medium text-slate-800 underline underline-offset-2 hover:text-black">View roster <span aria-hidden="true">-&gt;</span></button></div>
                     <MemberList members={visibleMembers.slice(0, 5)} currentUserId={user?.id} loading={membersLoading} />
                   </section>
                   <section className="border-t border-slate-200 pt-5 lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0">

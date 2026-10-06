@@ -23,7 +23,7 @@ const emptyForm = {
   title: '',
   context: '',
   description: '',
-  color: '#6242c7',
+  color: '#111111',
   priority: 'low',
   due_date: '',
   project_id: '',
@@ -292,7 +292,7 @@ export default function TeamWorkspace({ team, members = [], onNotice }) {
   };
 
   return (
-    <section>
+    <section className="team-workspace">
       <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h2 className="text-lg font-semibold">Workspace</h2>
