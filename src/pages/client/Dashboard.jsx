@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { CalendarDays, CheckCircle2, ListTodo, ListChecks, UsersRound, Star, Plus, Search, Inbox, Bell, Filter, Settings, LogOut, Trash2, ArrowRight } from 'lucide-react';
+import { CalendarDays, CheckCircle2, ListTodo, ListChecks, UsersRound, Star, Plus, Search, Inbox, Bell, Filter, Settings, LogOut, Trash2, ArrowRight, ChevronLeft, ChevronRight, Clock3, FolderKanban, Tags } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { getUserTasks, toggleTaskComplete, toggleTaskStar, createTask, getCompletedTasks, getStarredTasks } from '../../api/taskApi.js';
@@ -13,10 +13,31 @@ import { getApiErrorMessage } from '../../api/axios.js';
 import Button from '../../components/ui/Button.jsx';
 
 const priorityMeta = {
-  low: { label: 'No rush', className: 'bg-emerald-100 text-emerald-700' },
-  medium: { label: 'Important', className: 'bg-amber-100 text-amber-700' },
-  high: { label: 'Urgent', className: 'bg-rose-100 text-rose-700' },
+  low: { label: 'No rush', className: 'bg-slate-100 text-slate-600' },
+  medium: { label: 'Important', className: 'bg-amber-100 text-amber-800' },
+  high: { label: 'Urgent', className: 'bg-slate-900 text-white' },
 };
+
+function getDateKey(value) {
+  if (!value) return '';
+  if (value instanceof Date) {
+    const year = value.getFullYear();
+    const month = String(value.getMonth() + 1).padStart(2, '0');
+    const day = String(value.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+  return String(value).slice(0, 10);
+}
+
+function getCalendarDays(date) {
+  const firstOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+  const mondayOffset = (firstOfMonth.getDay() + 6) % 7;
+  return Array.from({ length: 42 }, (_, index) => new Date(
+    date.getFullYear(),
+    date.getMonth(),
+    1 - mondayOffset + index,
+  ));
+}
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -36,6 +57,8 @@ function Dashboard() {
   const [savingSubtask, setSavingSubtask] = useState(false);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [calendarDate, setCalendarDate] = useState(() => new Date());
+  const [selectedDate, setSelectedDate] = useState(() => new Date());
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
   const [isTagModalOpen, setIsTagModalOpen] = useState(false);
@@ -58,6 +81,29 @@ function Dashboard() {
   }, [location.pathname]);
   const selectedTaskId = selectedTask?.id;
   const visibleSubtasks = subtasksTaskId === selectedTaskId ? subtasks : [];
+  const calendarDays = useMemo(() => getCalendarDays(calendarDate), [calendarDate]);
+  const selectedDateKey = getDateKey(selectedDate);
+  const selectedDatePlans = plans.filter((plan) => getDateKey(plan.date) === selectedDateKey);
+  const plannedTaskIds = new Set(selectedDatePlans.map((plan) => String(plan.task_id)));
+  const dueTasksForDate = tasks.filter((task) => getDateKey(task.due_date) === selectedDateKey);
+  const agendaEvents = [
+    ...selectedDatePlans.map((plan) => ({
+      id: `plan-${plan.id}`,
+      taskId: plan.task_id,
+      title: plan.title,
+      detail: plan.description || tasks.find((task) => String(task.id) === String(plan.task_id))?.title || 'Planned work',
+      time: plan.start_at || '',
+      kind: 'Plan',
+    })),
+    ...dueTasksForDate.filter((task) => !plannedTaskIds.has(String(task.id))).map((task) => ({
+      id: `task-${task.id}`,
+      taskId: task.id,
+      title: task.title,
+      detail: task.context || 'Task due today',
+      time: '',
+      kind: 'Due',
+    })),
+  ].sort((left, right) => (left.time || '23:59').localeCompare(right.time || '23:59'));
 
   const viewTitle = {
     inbox: 'Inbox',
@@ -358,7 +404,7 @@ function Dashboard() {
 
   return (
     <div className="min-h-screen bg-[#f3f3f3] text-slate-800">
-      <div className="mx-auto grid max-w-[1600px] grid-cols-1 gap-3 p-2 sm:gap-5 sm:p-4 lg:grid-cols-[18rem_minmax(0,1fr)] lg:p-6 xl:grid-cols-[18rem_minmax(0,1fr)_22rem]">
+      <div className="mx-auto grid max-w-[1600px] grid-cols-1 gap-3 p-2 sm:gap-5 sm:p-4 lg:grid-cols-[13rem_minmax(0,1fr)] lg:p-6 xl:grid-cols-[13rem_minmax(0,1fr)_20rem]">
         <div className="flex flex-col gap-3 lg:hidden">
           <div className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white/90 p-3 shadow-sm">
             <div className="flex items-center gap-2">
@@ -382,15 +428,17 @@ function Dashboard() {
               { label: 'Completed', icon: CheckCircle2, path: '/app/completed' },
               { label: 'Starred', icon: Star, path: '/app/starred' },
             ].map(({ label, icon: Icon, path }) => (
-              <button key={label} onClick={() => navigate(path)} className={`inline-flex shrink-0 items-center gap-2 rounded-xl px-3 py-2 ${currentView === (path === '/app' ? 'inbox' : path.replace('/app/', '')) ? 'bg-indigo-600 text-white' : 'border border-slate-200 bg-white text-slate-600'}`}>
+              <button key={label} onClick={() => navigate(path)} className={`inline-flex shrink-0 items-center gap-2 rounded-lg px-3 py-2 ${currentView === (path === '/app' ? 'inbox' : path.replace('/app/', '')) ? 'bg-slate-900 text-white' : 'border border-slate-200 bg-white text-slate-600'}`}>
                 <Icon size={15} /> {label}
               </button>
             ))}
           </nav>
-          <button onClick={() => navigate('/app/teams')} className="flex items-center gap-2 rounded-xl bg-[#6242c7] px-3 py-2.5 text-left text-sm font-semibold text-[#e4ed59] shadow-sm hover:bg-[#5032ae]">
-            <UsersRound size={16} /> Team spaces <ArrowRight size={14} className="ml-auto" />
-          </button>
-          <div className="rounded-2xl border border-violet-100 bg-white p-4 shadow-sm">
+          <div className="grid grid-cols-3 gap-2">
+            <button onClick={() => navigate('/app/teams')} className="flex min-w-0 items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2 py-2.5 text-xs font-medium text-slate-700"><UsersRound size={15} /> Teams</button>
+            <button onClick={() => navigate('/app/projects')} className="flex min-w-0 items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2 py-2.5 text-xs font-medium text-slate-700"><FolderKanban size={15} /> Projects <span className="text-slate-400">{projects.length}</span></button>
+            <button onClick={() => navigate('/app/tags')} className="flex min-w-0 items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2 py-2.5 text-xs font-medium text-slate-700"><Tags size={15} /> Tags <span className="text-slate-400">{tags.length}</span></button>
+          </div>
+          <div className="hidden rounded-2xl border border-violet-100 bg-white p-4 shadow-sm">
             <div className="mb-3 flex items-center justify-between">
               <div><span className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-800">Projects</span><span className="ml-2 text-xs text-slate-500">{projects.length}</span></div>
               <div className="flex items-center gap-1"><button onClick={() => navigate('/app/projects')} className="rounded-lg p-1 text-violet-700 hover:bg-violet-50" aria-label="View all projects" title="View all projects"><ArrowRight size={15} /></button><button onClick={() => setIsProjectModalOpen(true)} className="rounded-lg p-1 text-violet-700 hover:bg-violet-50" aria-label="Add project" title="Add project"><Plus size={16} /></button></div>
@@ -404,7 +452,7 @@ function Dashboard() {
               ))}
             </div>
           </div>
-          <div className="rounded-2xl border border-violet-100 bg-white p-4 shadow-sm">
+          <div className="hidden rounded-2xl border border-violet-100 bg-white p-4 shadow-sm">
             <div className="mb-3 flex items-center justify-between">
               <div><span className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-800">Tags</span><span className="ml-2 text-xs text-slate-500">{tags.length}</span></div>
               <div className="flex items-center gap-1"><button onClick={() => navigate('/app/tags')} className="rounded-lg p-1 text-violet-700 hover:bg-violet-50" aria-label="View all tags" title="View all tags"><ArrowRight size={15} /></button><button onClick={() => setIsTagModalOpen(true)} className="rounded-lg p-1 text-violet-700 hover:bg-violet-50" aria-label="Add tag" title="Add tag"><Plus size={16} /></button></div>
@@ -429,7 +477,7 @@ function Dashboard() {
             </div>
           </div>
 
-          <div className="mb-5 flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
+          <div className="mb-5 hidden items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
             <Search size={15} className="text-slate-400" />
             <input value={search} onChange={(e) => setSearch(e.target.value)} className="w-full border-0 bg-transparent text-sm outline-none placeholder:text-slate-400" placeholder="Search" />
           </div>
@@ -442,14 +490,14 @@ function Dashboard() {
               { label: 'Completed', icon: CheckCircle2, path: '/app/completed' },
               { label: 'Starred', icon: Star, path: '/app/starred' },
             ].map(({ label, icon: Icon, path }) => (
-              <button key={label} onClick={() => navigate(path)} className={`flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left transition ${currentView === (path === '/app' ? 'inbox' : path.replace('/app/', '')) ? 'bg-indigo-50 text-indigo-700' : 'text-slate-600 hover:bg-slate-100'}`}>
+              <button key={label} onClick={() => navigate(path)} className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition ${currentView === (path === '/app' ? 'inbox' : path.replace('/app/', '')) ? 'bg-slate-100 font-medium text-slate-950' : 'text-slate-600 hover:bg-slate-100'}`}>
                 <Icon size={16} />
                 {label}
               </button>
             ))}
           </nav>
 
-          <button onClick={() => navigate('/app/teams')} className="mt-3 flex items-center gap-3 rounded-xl bg-[#6242c7] px-3 py-2.5 text-left text-sm font-semibold text-[#e4ed59] shadow-sm transition hover:bg-[#5032ae]">
+          <button onClick={() => navigate('/app/teams')} className="mt-3 flex items-center gap-3 rounded-lg bg-slate-900 px-3 py-2.5 text-left text-sm font-semibold text-white transition hover:bg-slate-700">
             <UsersRound size={16} /> Team spaces <ArrowRight size={14} className="ml-auto" />
           </button>
 
@@ -501,23 +549,27 @@ function Dashboard() {
             </div>
 
             <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+              <label className="hidden min-w-48 items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-slate-400 lg:flex">
+                <Search size={15} />
+                <input value={search} onChange={(e) => setSearch(e.target.value)} className="min-w-0 flex-1 border-0 bg-transparent text-sm text-slate-800 outline-none placeholder:text-slate-400" placeholder="Search tasks" />
+              </label>
               <button onClick={() => navigate('/app/notifications')} className="rounded-xl border border-slate-200 bg-slate-50 p-2.5 text-slate-600 hover:bg-slate-100" aria-label="Notifications" title="Notifications"><Bell size={18} /></button>
-              <Button onClick={() => setIsAddOpen(true)} className="gap-2 rounded-xl">
+              <Button variant="dark" onClick={() => setIsAddOpen(true)} className="gap-2 rounded-lg">
                 <Plus size={16} /> Add task
               </Button>
             </div>
           </div>
 
-          <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="mb-6 grid grid-cols-2 gap-2 sm:gap-4 xl:grid-cols-4">
             {[
               { label: 'Total tasks', value: summary.total, icon: ListTodo },
               { label: 'Completed', value: summary.completed, icon: CheckCircle2 },
               { label: 'Pending', value: summary.pending, icon: CalendarDays },
               { label: 'Starred', value: summary.starred, icon: Star },
             ].map(({ label, value, icon: Icon }) => (
-              <div key={label} className="rounded-xl border border-slate-200 bg-white p-4">
+              <div key={label} className="rounded-lg border border-slate-200 bg-white p-3 sm:rounded-xl sm:p-4">
                 <div className="mb-2 flex items-center justify-between text-slate-500">
-                  <span className="text-sm">{label}</span>
+                  <span className="text-xs sm:text-sm">{label}</span>
                   <Icon size={16} />
                 </div>
                 <div className="text-2xl font-bold text-slate-800">{value}</div>
@@ -538,8 +590,8 @@ function Dashboard() {
               <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-10 text-center text-slate-500">You don't have any tasks yet.</div>
             ) : (
               visibleTasks.map((task) => (
-                <div key={task.id} className={`flex min-w-0 cursor-pointer items-center gap-3 rounded-2xl border p-3 transition ${selectedTask?.id === task.id ? 'border-indigo-200 bg-indigo-50' : 'border-slate-200 bg-white hover:bg-slate-50'}`} onClick={() => setSelectedTask(task)}>
-                  <input type="checkbox" checked={Boolean(task.is_completed)} onChange={(e) => { e.stopPropagation(); handleTaskToggle(task.id, e.target.checked); }} className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" />
+                <div key={task.id} className={`flex min-w-0 cursor-pointer items-center gap-3 rounded-lg border p-3 transition ${selectedTask?.id === task.id ? 'border-slate-400 bg-slate-50' : 'border-slate-200 bg-white hover:bg-slate-50'}`} onClick={() => setSelectedTask(task)}>
+                  <input type="checkbox" checked={Boolean(task.is_completed)} onChange={(e) => { e.stopPropagation(); handleTaskToggle(task.id, e.target.checked); }} className="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-700" />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
                       <span className={`truncate font-medium ${task.is_completed ? 'text-slate-400 line-through' : 'text-slate-800'}`}>{task.title}</span>
@@ -562,8 +614,60 @@ function Dashboard() {
         </main>
 
         <aside className="min-w-0 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5 lg:col-span-2 xl:col-span-1">
-          {selectedTask ? (
-            <div>
+          <section className="mb-7" aria-label="Calendar and agenda">
+            <div className="mb-4 flex items-center justify-between gap-2">
+              <h2 className="text-base font-semibold text-slate-900">Calendar</h2>
+              <div className="flex items-center gap-1">
+                <button type="button" onClick={() => setCalendarDate((date) => new Date(date.getFullYear(), date.getMonth() - 1, 1))} className="rounded-md p-1.5 text-slate-500 hover:bg-slate-100" aria-label="Previous month"><ChevronLeft size={16} /></button>
+                <span className="min-w-24 text-center text-xs font-medium text-slate-700">{calendarDate.toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}</span>
+                <button type="button" onClick={() => setCalendarDate((date) => new Date(date.getFullYear(), date.getMonth() + 1, 1))} className="rounded-md p-1.5 text-slate-500 hover:bg-slate-100" aria-label="Next month"><ChevronRight size={16} /></button>
+              </div>
+            </div>
+            <div className="mb-1 grid grid-cols-7 text-center text-[10px] font-medium uppercase text-slate-400">
+              {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day) => <span key={day} className="py-1">{day}</span>)}
+            </div>
+            <div className="grid grid-cols-7 gap-y-1">
+              {calendarDays.map((day) => {
+                const dayKey = getDateKey(day);
+                const isCurrentMonth = day.getMonth() === calendarDate.getMonth();
+                const isSelected = dayKey === selectedDateKey;
+                const hasItems = tasks.some((task) => getDateKey(task.due_date) === dayKey)
+                  || plans.some((plan) => getDateKey(plan.date) === dayKey);
+                return <button key={dayKey} type="button" onClick={() => setSelectedDate(day)} className={`relative mx-auto grid h-8 w-8 place-items-center rounded-full text-xs transition ${isSelected ? 'bg-slate-900 font-semibold text-white' : isCurrentMonth ? 'text-slate-700 hover:bg-slate-100' : 'text-slate-300 hover:bg-slate-50'}`} aria-pressed={isSelected} aria-label={day.toLocaleDateString()}>
+                  {day.getDate()}
+                  {hasItems && <span className={`absolute bottom-1 h-1 w-1 rounded-full ${isSelected ? 'bg-white' : 'bg-slate-900'}`} />}
+                </button>;
+              })}
+            </div>
+          </section>
+
+          <section className="mb-7" aria-label="Selected day agenda">
+            <div className="mb-4 flex items-end justify-between gap-2 border-b border-slate-200 pb-3">
+              <div>
+                <p className="text-[10px] font-semibold uppercase text-slate-400">Agenda</p>
+                <h2 className="mt-1 text-base font-semibold text-slate-900">{selectedDate.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}</h2>
+              </div>
+              <button type="button" onClick={() => { const today = new Date(); setCalendarDate(today); setSelectedDate(today); }} className="text-xs font-medium text-slate-600 underline underline-offset-2 hover:text-black">Today</button>
+            </div>
+            {agendaEvents.length ? (
+              <div className="space-y-2">
+                {agendaEvents.map((event) => {
+                  const eventTask = tasks.find((task) => String(task.id) === String(event.taskId));
+                  return <button key={event.id} type="button" onClick={() => eventTask && setSelectedTask(eventTask)} className="flex w-full min-w-0 items-start gap-3 border-l-2 border-slate-900 bg-slate-50 px-3 py-2.5 text-left hover:bg-slate-100">
+                    <span className="flex w-12 shrink-0 items-center gap-1 pt-0.5 text-[10px] font-medium text-slate-500">{event.time ? <><Clock3 size={11} />{event.time}</> : event.kind}</span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-xs font-semibold text-slate-800">{event.title || 'Untitled task'}</span>
+                      <span className="mt-1 block truncate text-[11px] text-slate-500">{event.detail}</span>
+                    </span>
+                  </button>;
+                })}
+              </div>
+            ) : <p className="border-y border-dashed border-slate-200 py-6 text-center text-xs text-slate-500">Nothing planned for this day.</p>}
+          </section>
+
+          <section className="border-t border-slate-200 pt-5" aria-label="Task details">
+            {selectedTask ? (
+              <div>
               <div className="mb-5 flex items-center justify-between">
                 <h3 className="text-xl font-bold text-slate-950">{selectedTask.title}</h3>
                 <button onClick={() => handleStarToggle(selectedTask.id, !selectedTask.is_starred)} className="rounded-full p-2 text-slate-400 hover:bg-slate-100 hover:text-yellow-500">
@@ -662,10 +766,9 @@ function Dashboard() {
                   </div>
                 </div>
               </div>
-            </div>
-          ) : (
-            <div className="flex h-full items-center justify-center text-slate-500">Select a task to view details</div>
-          )}
+              </div>
+            ) : <p className="py-2 text-center text-xs text-slate-500">Select a task to view its details</p>}
+          </section>
         </aside>
       </div>
 
