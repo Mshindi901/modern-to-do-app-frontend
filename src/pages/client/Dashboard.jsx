@@ -407,13 +407,13 @@ function Dashboard() {
     <div className="client-dashboard min-h-screen text-slate-800" style={{ backgroundImage: `linear-gradient(rgb(255 255 255 / 78%), rgb(255 255 255 / 78%)), url(${clientDashboardBackground})`, backgroundPosition: 'center', backgroundSize: 'cover', backgroundAttachment: 'fixed' }}>
       <div className="mx-auto grid max-w-[1600px] grid-cols-1 gap-3 p-2 sm:gap-5 sm:p-4 lg:grid-cols-[13rem_minmax(0,1fr)] lg:p-6 xl:grid-cols-[13rem_minmax(0,1fr)_20rem]">
         <div className="flex flex-col gap-3 lg:hidden">
-          <div className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white/90 p-3 shadow-sm">
+          <div className="flex items-center justify-between border border-slate-200 bg-white/95 p-3 shadow-sm">
             <div className="flex items-center gap-2">
               <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-black font-bold text-white">T</div>
               <span className="font-semibold text-slate-800">The lazy</span>
             </div>
             <div className="flex items-center gap-1">
-              <button onClick={() => navigate('/app/teams')} className="rounded-xl bg-[#6242c7] p-2 text-[#e4ed59] hover:bg-[#5032ae]" aria-label="Open team spaces" title="Team spaces"><UsersRound size={17} /></button>
+              <button onClick={() => navigate('/app/teams')} className="rounded-lg bg-slate-900 p-2 text-white hover:bg-slate-700" aria-label="Open team spaces" title="Team spaces"><UsersRound size={17} /></button>
               <button onClick={logout} className="rounded-xl p-2 text-slate-500 hover:bg-slate-100" aria-label="Log out"><LogOut size={17} /></button>
             </div>
           </div>
@@ -468,12 +468,12 @@ function Dashboard() {
             </div>
           </div>
         </div>
-        <aside className="hidden min-w-0 rounded-xl border border-slate-200 bg-white p-4 shadow-sm lg:flex lg:flex-col">
+        <aside className="hidden min-w-0 flex-col bg-[#111] p-4 text-white lg:flex">
           <div className="mb-6 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-black text-lg font-bold text-white">T</div>
               <div>
-                <h2 className="text-lg font-semibold tracking-tight text-slate-800">The lazy</h2>
+                <h2 className="text-lg font-semibold tracking-tight text-white">The lazy</h2>
               </div>
             </div>
           </div>
@@ -491,62 +491,66 @@ function Dashboard() {
               { label: 'Completed', icon: CheckCircle2, path: '/app/completed' },
               { label: 'Starred', icon: Star, path: '/app/starred' },
             ].map(({ label, icon: Icon, path }) => (
-              <button key={label} onClick={() => navigate(path)} className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition ${currentView === (path === '/app' ? 'inbox' : path.replace('/app/', '')) ? 'bg-slate-100 font-medium text-slate-950' : 'text-slate-600 hover:bg-slate-100'}`}>
+              <button key={label} onClick={() => navigate(path)} className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition ${currentView === (path === '/app' ? 'inbox' : path.replace('/app/', '')) ? 'bg-white font-medium text-black' : 'text-white/70 hover:bg-white/10 hover:text-white'}`}>
                 <Icon size={16} />
                 {label}
               </button>
             ))}
           </nav>
 
-          <button onClick={() => navigate('/app/teams')} className="mt-3 flex items-center gap-3 rounded-lg bg-slate-900 px-3 py-2.5 text-left text-sm font-semibold text-white transition hover:bg-slate-700">
+          <button onClick={() => navigate('/app/teams')} className="mt-3 flex items-center gap-3 rounded-lg border border-white/20 bg-white/10 px-3 py-2.5 text-left text-sm font-semibold text-white transition hover:bg-white/15">
             <UsersRound size={16} /> Team spaces <ArrowRight size={14} className="ml-auto" />
           </button>
 
-          <div className="mt-7 rounded-2xl border border-violet-100 bg-white p-4">
+          <div className="mt-7 border-t border-white/15 pt-5">
             <div className="mb-3 flex items-center justify-between">
-              <div><span className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-800">Projects</span><span className="ml-2 text-xs text-slate-500">{projects.length}</span></div>
-              <div className="flex items-center gap-1"><button onClick={() => navigate('/app/projects')} className="rounded-lg p-1 text-violet-700 hover:bg-violet-50" aria-label="View all projects" title="View all projects"><ArrowRight size={15} /></button><button onClick={() => setIsProjectModalOpen(true)} className="rounded-lg p-1 text-violet-700 hover:bg-violet-50" aria-label="Add project" title="Add project"><Plus size={16} /></button></div>
+              <div><span className="text-xs font-semibold uppercase tracking-[0.18em] text-white">Projects</span><span className="ml-2 text-xs text-white/50">{projects.length}</span></div>
+              <div className="flex items-center gap-1"><button onClick={() => navigate('/app/projects')} className="rounded-lg p-1 text-white/65 hover:bg-white/10 hover:text-white" aria-label="View all projects" title="View all projects"><ArrowRight size={15} /></button><button onClick={() => setIsProjectModalOpen(true)} className="rounded-lg p-1 text-white/65 hover:bg-white/10 hover:text-white" aria-label="Add project" title="Add project"><Plus size={16} /></button></div>
             </div>
             <div className="grid gap-2">
               {projects.slice(0, 5).map((project) => (
-                <div key={project.id} className="flex min-w-0 items-center gap-1 rounded-lg bg-violet-50/70 p-1">
-                  <button onClick={() => navigate(`/app/projects/${project.id}`)} className="flex min-w-0 flex-1 items-center gap-2 truncate rounded-md px-2 py-1.5 text-left text-xs font-medium text-slate-700 hover:bg-white" title={project.name}><span className="h-2 w-2 shrink-0 rounded-sm" style={{ backgroundColor: project.color || '#6242c7' }} />{project.name}</button>
-                  <button onClick={() => handleDeleteProject(project.id)} className="rounded-md p-1 text-slate-400 hover:bg-rose-50 hover:text-rose-600" aria-label={`Delete project ${project.name}`} title="Delete project"><Trash2 size={13} /></button>
+                <div key={project.id} className="flex min-w-0 items-center gap-1 p-1">
+                  <button onClick={() => navigate(`/app/projects/${project.id}`)} className="flex min-w-0 flex-1 items-center gap-2 truncate rounded-md px-2 py-1.5 text-left text-xs font-medium text-white/75 hover:bg-white/10 hover:text-white" title={project.name}><span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: project.color || '#fff' }} />{project.name}</button>
+                  <button onClick={() => handleDeleteProject(project.id)} className="rounded-md p-1 text-white/40 hover:bg-white/10 hover:text-white" aria-label={`Delete project ${project.name}`} title="Delete project"><Trash2 size={13} /></button>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="mt-4 rounded-2xl border border-violet-100 bg-white p-4">
+          <div className="mt-5 border-t border-white/15 pt-5">
             <div className="mb-3 flex items-center justify-between">
-              <div><span className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-800">Tags</span><span className="ml-2 text-xs text-slate-500">{tags.length}</span></div>
-              <div className="flex items-center gap-1"><button onClick={() => navigate('/app/tags')} className="rounded-lg p-1 text-violet-700 hover:bg-violet-50" aria-label="View all tags" title="View all tags"><ArrowRight size={15} /></button><button onClick={() => setIsTagModalOpen(true)} className="rounded-lg p-1 text-violet-700 hover:bg-violet-50" aria-label="Add tag" title="Add tag"><Plus size={16} /></button></div>
+              <div><span className="text-xs font-semibold uppercase tracking-[0.18em] text-white">Tags</span><span className="ml-2 text-xs text-white/50">{tags.length}</span></div>
+              <div className="flex items-center gap-1"><button onClick={() => navigate('/app/tags')} className="rounded-lg p-1 text-white/65 hover:bg-white/10 hover:text-white" aria-label="View all tags" title="View all tags"><ArrowRight size={15} /></button><button onClick={() => setIsTagModalOpen(true)} className="rounded-lg p-1 text-white/65 hover:bg-white/10 hover:text-white" aria-label="Add tag" title="Add tag"><Plus size={16} /></button></div>
             </div>
             <div className="grid gap-2">
               {tags.slice(0, 8).map((tag) => (
-                <div key={tag.id} className="flex min-w-0 items-center gap-1 rounded-lg bg-violet-50/70 p-1">
-                  <span className="min-w-0 flex-1 truncate rounded-md px-2 py-1.5 text-xs font-medium text-slate-700" title={tag.name}><span className="mr-1.5 inline-block h-2 w-2 rounded-full align-middle" style={{ backgroundColor: tag.color || '#6242c7' }} />{tag.name}</span>
-                  <button onClick={() => handleDeleteTag(tag.id)} className="rounded-md p-1 text-slate-400 hover:bg-rose-50 hover:text-rose-600" aria-label={`Delete tag ${tag.name}`} title="Delete tag"><Trash2 size={13} /></button>
+                <div key={tag.id} className="flex min-w-0 items-center gap-1 p-1">
+                  <span className="min-w-0 flex-1 truncate rounded-md px-2 py-1.5 text-xs font-medium text-white/75" title={tag.name}><span className="mr-1.5 inline-block h-2 w-2 rounded-full align-middle" style={{ backgroundColor: tag.color || '#fff' }} />{tag.name}</span>
+                  <button onClick={() => handleDeleteTag(tag.id)} className="rounded-md p-1 text-white/40 hover:bg-white/10 hover:text-white" aria-label={`Delete tag ${tag.name}`} title="Delete tag"><Trash2 size={13} /></button>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="mt-auto space-y-2 border-t border-slate-200 pt-4">
-            <button onClick={() => navigate('/app/profile')} className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-slate-600 hover:bg-slate-100">
+          <div className="mt-auto space-y-2 border-t border-white/15 pt-4">
+            <button onClick={() => navigate('/app/profile')} className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-white/70 hover:bg-white/10 hover:text-white">
               <Settings size={16} /> Settings
             </button>
-            <button onClick={logout} className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-slate-600 hover:bg-slate-100">
+            <button onClick={logout} className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-white/70 hover:bg-white/10 hover:text-white">
               <LogOut size={16} /> Logout
             </button>
           </div>
         </aside>
 
-        <main className="min-w-0 rounded-xl border border-slate-200 bg-white p-3 shadow-sm sm:p-6">
+        <main className="min-w-0 rounded-xl border border-slate-200 bg-white/95 p-3 shadow-sm sm:p-6">
           <div className="mb-6 flex flex-col gap-4 border-b border-slate-200 pb-5 md:flex-row md:items-center md:justify-between">
-            <div>
-              <p className="text-sm text-slate-500">{greeting},</p>
-              <h1 className="text-3xl font-bold text-slate-800">{displayName}</h1>
+            <div className="flex min-w-0 items-center gap-3 sm:gap-4">
+              <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-slate-900 text-lg font-semibold uppercase text-white sm:h-14 sm:w-14" aria-hidden="true">{displayName.charAt(0)}</span>
+              <div className="min-w-0">
+                <p className="text-xs font-medium text-slate-500">{greeting}</p>
+                <h1 className="truncate text-2xl font-bold text-slate-900 sm:text-3xl">{displayName}</h1>
+                <p className="mt-0.5 truncate text-xs text-slate-500">{currentUser?.email || user?.email || 'Your personal workspace'}</p>
+              </div>
             </div>
 
             <div className="flex flex-wrap items-center gap-2 sm:gap-3">

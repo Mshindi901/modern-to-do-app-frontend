@@ -104,6 +104,19 @@ select {
   border-color: #d4d4d4 !important;
 }
 
+.client-dashboard [class*="bg-indigo-600"],
+.client-dashboard [class*="bg-violet-600"],
+.client-dashboard [class*="bg-[#6242c7]"],
+.client-dashboard [class*="bg-[#5032ae]"] {
+  background-color: #111 !important;
+  color: #fff !important;
+}
+
+.client-dashboard [class*="focus:border-indigo-"]:focus,
+.client-dashboard [class*="focus:border-violet-"]:focus {
+  border-color: #111 !important;
+}
+
 .register-page {
   min-height: 100vh;
   display: grid;
